@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace Thue_san_the_thao.Areas.Admin.Controllers
 {
-    public class HomeController : Controller
+    public class HomeAdminController : Controller
     {
         // GET: Admin/Home
         public ActionResult Trangchu()
