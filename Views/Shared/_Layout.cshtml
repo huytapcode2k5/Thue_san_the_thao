@@ -1,0 +1,786 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - Thuê Sân Thể Thao</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ===== BIẾN MÀU ===== */
+        :root {
+            --primary: #00CC33; /* Màu chính header & footer */
+            --primary-dark: #009926; /* Hover darker */
+            --primary-btn: #28c76f; /* Nút nổi bật */
+            --accent: #f5a623;
+            --surface: #ffffff;
+            --surface-2: #f4f7f5;
+            --surface-3: #e8f2ec;
+            --text: #0d1f16;
+            --text-muted: #5a7566;
+            --border: rgba(0,150,40,0.15);
+            --shadow: 0 4px 20px rgba(0,100,30,0.15);
+            --nav-h: 68px;
+            --tr: 0.25s ease;
+        }
+
+        /* ===== BASE ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            line-height: 1.65;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== NAVBAR ===== */
+        .main-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: var(--nav-h);
+            background: var(--primary); /* Màu #00CC33 */
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        }
+
+            /* Container navbar: brand bên trái, links+actions bên phải */
+            .main-nav .container {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+        /* Brand (logo + tên) */
+        .nav-brand {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #fff !important;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+            .nav-brand:hover {
+                opacity: 0.88;
+            }
+
+            .nav-brand .brand-icon {
+                width: 36px;
+                height: 36px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .nav-brand .brand-sub {
+                display: block;
+                font-size: 0.65rem;
+                font-weight: 400;
+                opacity: 0.7;
+                font-family: 'Be Vietnam Pro', sans-serif;
+            }
+
+        /* Collapse wrapper: flex row trên desktop */
+        .nav-collapse {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Danh sách link điều hướng */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+            .nav-links .nav-link {
+                color: rgba(255,255,255,0.85) !important;
+                font-size: 0.875rem;
+                font-weight: 500;
+                padding: 8px 14px !important;
+                border-radius: 8px;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                white-space: nowrap;
+                transition: background var(--tr);
+            }
+
+                .nav-links .nav-link:hover,
+                .nav-links .nav-link.active {
+                    color: #fff !important;
+                    background: rgba(0,0,0,0.15);
+                }
+
+        /* Nhóm nút bên phải (giỏ hàng, đăng nhập) */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Nút Giỏ hàng */
+        .btn-cart {
+            position: relative;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff !important;
+            border-radius: 10px;
+            padding: 8px 14px !important;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            transition: background var(--tr);
+        }
+
+            .btn-cart:hover {
+                background: rgba(255,255,255,0.25);
+            }
+
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Nút Đăng nhập */
+        .btn-login {
+            background: rgba(0,0,0,0.2);
+            color: #fff !important;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            padding: 8px 18px !important;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            transition: all var(--tr);
+        }
+
+            .btn-login:hover {
+                background: rgba(0,0,0,0.3);
+                transform: translateY(-1px);
+            }
+
+        /* ===== USER DROPDOWN ===== */
+        .nav-user .dropdown-toggle {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff !important;
+            border-radius: 10px;
+            padding: 7px 14px !important;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background var(--tr);
+        }
+
+            .nav-user .dropdown-toggle:hover {
+                background: rgba(255,255,255,0.25);
+            }
+
+            .nav-user .dropdown-toggle::after {
+                display: none;
+            }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .nav-user .dropdown-menu {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            padding: 8px;
+            min-width: 200px;
+            margin-top: 8px !important;
+        }
+
+        @@keyframes dropIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-user .dropdown-item {
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background var(--tr);
+        }
+
+            .nav-user .dropdown-item:hover {
+                background: var(--surface-3);
+                color: var(--primary-dark);
+            }
+
+            .nav-user .dropdown-item.logout {
+                color: #dc3545;
+            }
+
+                .nav-user .dropdown-item.logout:hover {
+                    background: #fff5f5;
+                }
+
+        /* Nút hamburger mobile */
+        .nav-toggler {
+            display: none;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: background var(--tr);
+        }
+
+            .nav-toggler:hover {
+                background: rgba(255,255,255,0.25);
+            }
+
+        /* ===== TOPBAR (breadcrumb) ===== */
+        .page-topbar {
+            background: var(--surface-2);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 0;
+        }
+
+            .page-topbar .breadcrumb {
+                margin: 0;
+                font-size: 0.8rem;
+            }
+
+            .page-topbar .breadcrumb-item a {
+                color: var(--primary-dark);
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+            .page-topbar .breadcrumb-item.active {
+                color: var(--text-muted);
+            }
+
+        /* ===== FOOTER ===== */
+        .main-footer {
+            background: var(--primary); /* Màu #00CC33 */
+            color: rgba(255,255,255,0.8);
+            padding: 20px 0 0;
+            margin-top: auto;
+        }
+
+        .footer-brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .footer-desc {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.6);
+            max-width: 280px;
+            line-height: 1.7;
+        }
+
+        .footer-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .footer-links li {
+                margin-bottom: 10px;
+            }
+
+            .footer-links a {
+                color: rgba(255,255,255,0.7);
+                text-decoration: none;
+                font-size: 0.875rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: all var(--tr);
+            }
+
+                .footer-links a:hover {
+                    color: #fff;
+                    padding-left: 4px;
+                }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 0.875rem;
+        }
+
+            .footer-contact-item i {
+                color: rgba(255,255,255,0.6);
+                margin-top: 2px;
+            }
+
+        .footer-socials {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+            .footer-socials a {
+                width: 34px;
+                height: 34px;
+                background: rgba(255,255,255,0.1);
+                border: 1px solid rgba(255,255,255,0.2);
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: rgba(255,255,255,0.7);
+                font-size: 0.85rem;
+                text-decoration: none;
+                transition: all var(--tr);
+            }
+
+                .footer-socials a:hover {
+                    background: rgba(255,255,255,0.25);
+                    color: #fff;
+                    transform: translateY(-2px);
+                }
+
+        .footer-divider {
+            border-color: rgba(255,255,255,0.15);
+            margin: 10px 0 0;
+        }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+            .footer-bottom p {
+                margin: 0;
+                font-size: 0.8rem;
+                color: rgba(255,255,255,0.45);
+            }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: 16px;
+        }
+
+            .footer-bottom-links a {
+                color: rgba(255,255,255,0.45);
+                text-decoration: none;
+                font-size: 0.8rem;
+                transition: color var(--tr);
+            }
+
+                .footer-bottom-links a:hover {
+                    color: rgba(255,255,255,0.8);
+                }
+
+        /* ===== RESPONSIVE (mobile) ===== */
+        @@media (max-width: 991px) {
+            .nav-toggler {
+                display: flex;
+                align-items: center;
+            }
+            /* Menu dropdown trên mobile */
+            .nav-collapse {
+                position: absolute;
+                top: var(--nav-h);
+                left: 0;
+                right: 0;
+                background: var(--primary-dark);
+                border-top: 1px solid rgba(255,255,255,0.1);
+                padding: 12px 16px 16px;
+                display: none;
+                flex-direction: column;
+                gap: 4px;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            }
+
+                .nav-collapse.open {
+                    display: flex;
+                }
+
+            .nav-links, .nav-right {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                gap: 2px;
+            }
+
+                .nav-links .nav-link, .btn-cart, .btn-login {
+                    justify-content: flex-start;
+                }
+
+            .nav-divider {
+                border-top: 1px solid rgba(255,255,255,0.1);
+                margin: 6px 0;
+            }
+        }
+
+        /* ===== NÚT CUỘN LÊN ĐẦU ===== */
+        .scroll-top {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 42px;
+            height: 42px;
+            background: var(--primary-dark);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: all var(--tr);
+            box-shadow: var(--shadow);
+            z-index: 999;
+        }
+
+            .scroll-top.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .scroll-top:hover {
+                background: var(--primary);
+                transform: translateY(-2px);
+            }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            padding: 40px 0 60px;
+        }
+
+        /* ===== UTILITY ===== */
+        .badge-accent {
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="main-nav">
+        <div class="container">
+
+            <!-- Brand -->
+            <a class="nav-brand" href="/">
+                <span class="brand-icon">🏟️</span>
+                <span>
+                    Thuê Sân
+                    <span class="brand-sub">Thể Thao</span>
+                </span>
+            </a>
+
+            <!-- Toggler (mobile) -->
+            <button class="nav-toggler" id="navToggler" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Collapse wrapper -->
+            <div class="nav-collapse" id="navCollapse">
+
+                <!-- Left links -->
+                <ul class="nav-links">
+                    <li>
+                        <a class="nav-link" href="/"><i class="fas fa-home"></i> Trang chủ</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="/Booking"><i class="fas fa-calendar-check"></i> Đặt sân</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="/Product"><i class="fas fa-store"></i> Sản phẩm</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="/History"><i class="fas fa-clock-rotate-left"></i> Lịch sử</a>
+                    </li>
+                </ul>
+
+                <div class="nav-divider d-lg-none"></div>
+
+                <!-- Right -->
+                <ul class="nav-right">
+
+                    <!-- Cart -->
+                    <li>
+                        <a class="btn-cart" href="/Cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            Giỏ hàng
+                            @if (ViewBag.CartCount != null && ViewBag.CartCount > 0)
+                            {
+                                <span class="cart-badge">@ViewBag.CartCount</span>
+                            }
+                        </a>
+                    </li>
+
+                    <!-- User -->
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-user dropdown">
+                            <a class="dropdown-toggle" data-bs-toggle="dropdown" role="button">
+                                <span class="user-avatar">
+                                    @User.Identity.Name?.Substring(0, 1).ToUpper()
+                                </span>
+                                <span>@User.Identity.Name</span>
+                                <i class="fas fa-chevron-down" style="font-size:.65rem;opacity:.6"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="/Account/Profile">
+                                        <i class="fas fa-user"></i> Thông tin cá nhân
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/History">
+                                        <i class="fas fa-clock-rotate-left"></i> Lịch sử đặt sân
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/Order">
+                                        <i class="fas fa-box"></i> Đơn hàng
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <a class="dropdown-item logout" href="/Account/Logout">
+                                        <i class="fas fa-right-from-bracket"></i> Đăng xuất
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <a class="btn-login" href="/Account/Login">
+                                <i class="fas fa-right-to-bracket"></i> Đăng nhập
+                            </a>
+                        </li>
+                    }
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+        <div class="container">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="row g-5">
+
+                <!-- Col 1: Brand -->
+                <div class="col-lg-4">
+                    <div class="footer-brand">
+                        <span class="brand-icon">🏟️</span>
+                        Thuê Sân Thể Thao
+                    </div>
+                    <p class="footer-desc">
+                        Nền tảng đặt sân thể thao trực tuyến nhanh chóng, tiện lợi.
+                        Tìm sân — đặt lịch — thi đấu, chỉ trong vài bước.
+                    </p>
+                    <div class="footer-socials">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Dịch vụ -->
+                <div class="col-6 col-lg-2">
+                    <p class="footer-title">Dịch vụ</p>
+                    <ul class="footer-links">
+                        <li><a href="/Booking"><i class="fas fa-chevron-right"></i> Đặt sân</a></li>
+                        <li><a href="/Product"><i class="fas fa-chevron-right"></i> Mua sắm</a></li>
+                        <li><a href="/History"><i class="fas fa-chevron-right"></i> Lịch sử</a></li>
+                        <li><a href="/Cart"><i class="fas fa-chevron-right"></i> Giỏ hàng</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Hỗ trợ -->
+                <div class="col-6 col-lg-2">
+                    <p class="footer-title">Hỗ trợ</p>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Hướng dẫn</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Chính sách</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Liên hệ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Liên hệ -->
+                <div class="col-lg-4">
+                    <p class="footer-title">Liên hệ</p>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-location-dot"></i>
+                        <span>235 Hoàng Quốc Việt, Cầu Giấy, TP Hà Nội</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>0123456789 (8:00 – 22:00)</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>support@thueSan.vn</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="footer-divider" />
+
+            <div class="footer-bottom">
+                <p>© 2026 Thuê Sân Thể Thao. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Điều khoản</a>
+                    <a href="#">Bảo mật</a>
+                    <a href="#">Cookie</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to top -->
+    <button class="scroll-top" id="scrollTop" aria-label="Lên đầu trang">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Mobile nav toggle
+        const toggler = document.getElementById('navToggler');
+        const collapse = document.getElementById('navCollapse');
+        toggler?.addEventListener('click', () => {
+            collapse.classList.toggle('open');
+            const icon = toggler.querySelector('i');
+            icon.className = collapse.classList.contains('open')
+                ? 'fas fa-xmark' : 'fas fa-bars';
+        });
+
+        // Active nav link
+        const links = document.querySelectorAll('.nav-links .nav-link');
+        links.forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+
+        // Scroll to top button
+        const scrollBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            scrollBtn?.classList.toggle('visible', window.scrollY > 320);
+        });
+        scrollBtn?.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>
