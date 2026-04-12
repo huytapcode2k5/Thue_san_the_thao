@@ -614,10 +614,11 @@
                     {
                         <li class="nav-user dropdown">
                             <a class="dropdown-toggle" data-bs-toggle="dropdown" role="button">
-                                <span class="user-avatar">
-                                    @User.Identity.Name?.Substring(0, 1).ToUpper()
-                                </span>
-                                <span>@User.Identity.Name</span>
+                                @{
+                                    var name = User.Identity.Name ?? "A";
+                                    var firstChar = name.Length > 0 ? name.Substring(0, 1).ToUpper() : "A";
+                                }
+                                <span class="user-avatar">@firstChar</span>
                                 <i class="fas fa-chevron-down" style="font-size:.65rem;opacity:.6"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -626,11 +627,7 @@
                                         <i class="fas fa-user"></i> Thông tin cá nhân
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item" href="/History">
-                                        <i class="fas fa-clock-rotate-left"></i> Lịch sử đặt sân
-                                    </a>
-                                </li>
+
                                 <li>
                                     <a class="dropdown-item" href="/Order">
                                         <i class="fas fa-box"></i> Đơn hàng
@@ -638,7 +635,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider" /></li>
                                 <li>
-                                    <a class="dropdown-item logout" href="/Account/Logout">
+                                    <a class="dropdown-item logout" href="/Account/Login">
                                         <i class="fas fa-right-from-bracket"></i> Đăng xuất
                                     </a>
                                 </li>

@@ -1,0 +1,95 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using Thue_san_the_thao.Models.Data;
+
+namespace Thue_san_the_thao.Areas.Admin.Controllers
+{
+    [Authorize]
+    public class OrderController : Controller
+    {
+        Quan_ly_thue_san_the_thao_webncEntities db = new Quan_ly_thue_san_the_thao_webncEntities();
+
+        // ───────────────────────────────────────────
+        // INDEX – danh sách đơn hàng (có lọc + tìm)
+        // ───────────────────────────────────────────
+        public ActionResult Index(string search, string status)
+        {
+            var orders = db.Orders
+                           .Include("User")
+                           .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                int orderId;
+                if (int.TryParse(search, out orderId))
+                    orders = orders.Where(o => o.OrderID == orderId);
+                else
+                    orders = orders.Where(o => o.User.FullName.Contains(search)
+                                            || o.User.Email.Contains(search));
+            }
+
+            if (!string.IsNullOrEmpty(status))
+                orders = orders.Where(o => o.Status == status);
+
+            ViewBag.Status = status;
+            ViewBag.Search = search;
+
+            return View(orders.OrderByDescending(o => o.OrderDate).ToList());
+        }
+
+        // ───────────────────────────────────────────
+        // DETAILS – chi tiết đơn hàng + danh sách sản phẩm
+        // ───────────────────────────────────────────
+        public ActionResult Details(int id)
+        {
+            var order = db.Orders
+                          .Include("User")
+                          .Include("OrderDetails.Product")
+                          .FirstOrDefault(o => o.OrderID == id);
+
+            if (order == null)
+                return HttpNotFound();
+
+            return View(order);
+        }
+
+        // ───────────────────────────────────────────
+        // UPDATE STATUS (POST Ajax-friendly)
+        // ───────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateStatus(int id, string status)
+        {
+            var order = db.Orders.Find(id);
+            if (order == null)
+                return HttpNotFound();
+
+            order.Status = status;
+            db.SaveChanges();
+
+            TempData["Success"] = "Cập nhật trạng thái đơn hàng #" + id + " thành công!";
+            return RedirectToAction("Details", new { id = id });
+        }
+
+        // ───────────────────────────────────────────
+        // DELETE
+        // ───────────────────────────────────────────
+        public ActionResult Delete(int id)
+        {
+            var order = db.Orders.Include("OrderDetails").FirstOrDefault(o => o.OrderID == id);
+            if (order == null)
+                return HttpNotFound();
+
+            db.OrderDetails.RemoveRange(order.OrderDetails);
+            db.Orders.Remove(order);
+            db.SaveChanges();
+
+            TempData["Success"] = "Đã xóa đơn hàng #" + id;
+            return RedirectToAction("Index");
+        }
+    }
+}

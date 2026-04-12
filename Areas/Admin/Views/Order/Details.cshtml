@@ -1,0 +1,414 @@
+﻿@model Thue_san_the_thao.Models.Data.Order
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng #" + Model.OrderID;
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+}
+
+<style>
+    .btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all .25s ease;
+        cursor: pointer;
+        border: none;
+        display: inline-block;
+    }
+
+    .btn-outline {
+        border: 1px solid #4e73df;
+        color: #4e73df;
+        background: transparent;
+    }
+
+        .btn-outline:hover {
+            background: #4e73df;
+            color: #fff;
+        }
+
+    .btn-primary {
+        background: linear-gradient(135deg,#6366f1,#4f46e5);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(99,102,241,.3);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+    .btn-success {
+        background: #16a34a;
+        color: #fff;
+    }
+
+        .btn-success:hover {
+            background: #15803d;
+            color: #fff;
+        }
+
+    .page-header {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 18px;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    @@media(max-width:768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .info-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.07);
+    }
+
+        .info-card h5 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #334155;
+            border-bottom: 2px solid #e0e7ff;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .info-label {
+        color: #64748b;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #1e293b;
+        text-align: right;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .badge-confirmed {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .badge-shipping {
+        background: #ede9fe;
+        color: #7c3aed;
+    }
+
+    .badge-completed {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .badge-cancelled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .badge-default {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .products-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.07);
+        margin-bottom: 24px;
+    }
+
+        .products-card h5 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #334155;
+            border-bottom: 2px solid #e0e7ff;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .data-table thead {
+            background: #f1f5f9;
+        }
+
+        .data-table th {
+            padding: 11px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .data-table td {
+            padding: 11px 12px;
+            border-top: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+    .product-img {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    .product-img-placeholder {
+        width: 48px;
+        height: 48px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 11px;
+    }
+
+    .amount-text {
+        font-weight: 700;
+        color: #059669;
+    }
+
+    .total-row td {
+        font-weight: 700;
+        font-size: 15px;
+        background: #f8fafc;
+    }
+
+    .status-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.07);
+    }
+
+        .status-card h5 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #334155;
+            border-bottom: 2px solid #e0e7ff;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+    .status-select {
+        padding: 9px 12px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        font-size: 14px;
+        width: 100%;
+        margin-bottom: 12px;
+        transition: .2s;
+    }
+
+        .status-select:focus {
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+        }
+
+    .alert {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+
+    .alert-success {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+</style>
+
+<div class="page-header">
+    <a href="@Url.Action("Index", "Order")" class="btn btn-outline">← Quay lại danh sách</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@{
+    string badgeClass = "badge-default";
+    switch (Model.Status)
+    {
+        case "Chờ xác nhận": badgeClass = "badge-pending"; break;
+        case "Đã xác nhận": badgeClass = "badge-confirmed"; break;
+        case "Đang giao": badgeClass = "badge-shipping"; break;
+        case "Hoàn thành": badgeClass = "badge-completed"; break;
+        case "Đã hủy": badgeClass = "badge-cancelled"; break;
+    }
+}
+
+<!-- Thông tin chung + Khách hàng -->
+<div class="detail-grid">
+
+    <!-- Thông tin đơn hàng -->
+    <div class="info-card">
+        <h5>📦 Thông tin đơn hàng</h5>
+        <div class="info-row">
+            <span class="info-label">Mã đơn hàng</span>
+            <span class="info-value">#@Model.OrderID</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Ngày đặt</span>
+            <span class="info-value">
+                @(Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "—")
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Tổng tiền</span>
+            <span class="info-value amount-text">
+                @(Model.TotalAmount.HasValue ? String.Format("{0:N0}đ", Model.TotalAmount.Value) : "—")
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Trạng thái</span>
+            <span class="info-value">
+                <span class="badge @badgeClass">@(Model.Status ?? "—")</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Thông tin khách hàng -->
+    <div class="info-card">
+        <h5>👤 Khách hàng</h5>
+        @if (Model.User != null)
+        {
+            <div class="info-row">
+                <span class="info-label">Họ tên</span>
+                <span class="info-value">@Model.User.FullName</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">@Model.User.Email</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Số điện thoại</span>
+                <span class="info-value">@(string.IsNullOrEmpty(Model.User.Phone) ? "—" : Model.User.Phone)</span>
+            </div>
+        }
+        else
+        {
+            <p style="color:#94a3b8; font-style:italic">Khách vãng lai (không có tài khoản)</p>
+        }
+    </div>
+</div>
+
+<!-- Danh sách sản phẩm -->
+<div class="products-card">
+    <h5>🛒 Sản phẩm trong đơn</h5>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width:60px">Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th style="width:100px">Đơn giá</th>
+                <th style="width:80px; text-align:center">SL</th>
+                <th style="width:120px; text-align:right">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.OrderDetails.Any())
+            {
+                <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px; font-style:italic">Không có sản phẩm.</td></tr>
+            }
+            @foreach (var detail in Model.OrderDetails)
+            {
+                decimal lineTotal = (detail.Price ?? 0) * (detail.Quantity ?? 0);
+                <tr>
+                    <td>
+                        @if (detail.Product != null && !string.IsNullOrEmpty(detail.Product.Image))
+                        {
+                            string imgSrc = detail.Product.Image.StartsWith("/") ? detail.Product.Image : "/Images/" + detail.Product.Image;
+                            <img src="@imgSrc" class="product-img" alt="@detail.Product.Name" />
+                        }
+                        else
+                        {
+                            <div class="product-img-placeholder">No img</div>
+                        }
+                    </td>
+                    <td>@(detail.Product != null ? detail.Product.Name : "Sản phẩm #" + detail.ProductID)</td>
+                    <td>@String.Format("{0:N0}đ", detail.Price ?? 0)</td>
+                    <td style="text-align:center">@(detail.Quantity ?? 0)</td>
+                    <td style="text-align:right"><span class="amount-text">@String.Format("{0:N0}đ", lineTotal)</span></td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="4" style="text-align:right; padding-right:20px">Tổng cộng:</td>
+                <td style="text-align:right">
+                    <span class="amount-text">
+                        @String.Format("{0:N0}đ", Model.TotalAmount ?? 0)
+                    </span>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<!-- Cập nhật trạng thái -->
+<div class="status-card">
+    <h5>🔄 Cập nhật trạng thái đơn hàng</h5>
+    @using (Html.BeginForm("UpdateStatus", "Order", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.OrderID" />
+        <select name="status" class="status-select">
+            @foreach (var s in new[] { "Chờ xác nhận", "Đã xác nhận", "Đang giao", "Hoàn thành", "Đã hủy" })
+            {
+                if (Model.Status == s)
+                {
+                    <option value="@s" selected="selected">@s</option>
+ }
+                else
+                {
+                    <option value="@s">@s</option>
+}
+            }
+        </select>
+        <button type="submit" class="btn btn-success">💾 Lưu trạng thái</button>
+    }
+</div>

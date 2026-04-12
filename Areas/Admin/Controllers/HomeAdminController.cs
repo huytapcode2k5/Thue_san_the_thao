@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace Thue_san_the_thao.Areas.Admin.Controllers
 {
+    [Authorize]
     public class HomeAdminController : Controller
     {
         // GET: Admin/Home

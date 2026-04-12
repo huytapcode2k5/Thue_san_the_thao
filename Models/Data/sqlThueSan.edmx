@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="Quan_ly_thue_san_the_thao_webncModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="Quan_ly_thue_san_the_thao_webncModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Bookings">
           <Key>
             <PropertyRef Name="BookingID" />
@@ -114,6 +114,7 @@
           <Property Name="Description" Type="nvarchar" MaxLength="255" />
           <Property Name="CategoryID" Type="int" />
           <Property Name="Status" Type="bit" />
+          <Property Name="ProductDate" Type="datetime" />
         </EntityType>
         <EntityType Name="Reviews">
           <Key>
@@ -472,8 +473,7 @@
             <End Role="Users" EntitySet="Users" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="Quan_ly_thue_san_the_thao_webncModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -612,6 +612,7 @@
           <NavigationProperty Name="CartItems" Relationship="Self.FK__CartItems__Produ__787EE5A0" FromRole="Product" ToRole="CartItems" />
           <NavigationProperty Name="Category" Relationship="Self.FK__Product__Categor__5535A963" FromRole="Product" ToRole="Category" />
           <NavigationProperty Name="OrderDetails" Relationship="Self.FK__OrderDeta__Produ__5DCAEF64" FromRole="Product" ToRole="OrderDetails" />
+          <Property Name="ProductDate" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="Review">
           <Key>
@@ -1096,6 +1097,7 @@
           <EntitySetMapping Name="Products">
             <EntityTypeMapping TypeName="Quan_ly_thue_san_the_thao_webncModel.Product">
               <MappingFragment StoreEntitySet="Product">
+                <ScalarProperty Name="ProductDate" ColumnName="ProductDate" />
                 <ScalarProperty Name="ProductID" ColumnName="ProductID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Price" ColumnName="Price" />

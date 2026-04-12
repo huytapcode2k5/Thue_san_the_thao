@@ -28,6 +28,7 @@ namespace Thue_san_the_thao.Models.Data
         public string Description { get; set; }
         public Nullable<int> CategoryID { get; set; }
         public Nullable<bool> Status { get; set; }
+        public Nullable<System.DateTime> ProductDate { get; set; }
     
         public virtual ICollection<CartItem> CartItems { get; set; }
         public virtual Category Category { get; set; }

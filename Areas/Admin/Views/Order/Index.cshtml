@@ -1,0 +1,419 @@
+﻿@model IEnumerable<Thue_san_the_thao.Models.Data.Order>
+
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+}
+
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        border: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg,#6366f1,#4f46e5);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(99,102,241,.3);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+    .btn-outline {
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        background: #fff;
+    }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+    .btn-danger {
+        background: #ef4444;
+        color: #fff;
+    }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            color: #fff;
+        }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 13px;
+    }
+
+    .btn-info {
+        background: #0ea5e9;
+        color: #fff;
+    }
+
+        .btn-info:hover {
+            background: #0284c7;
+            color: #fff;
+        }
+
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.06);
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+        .filter-bar label {
+            font-weight: 600;
+            color: #334155;
+            white-space: nowrap;
+        }
+
+    .filter-divider {
+        width: 1px;
+        min-width: 1px;
+        height: 25px;
+        background: #e2e8f0;
+    }
+
+    .form-control {
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        transition: .2s;
+        min-width: 0;
+    }
+
+    .filter-bar input.form-control {
+        width: 180px;
+    }
+
+    .filter-bar select.form-control {
+        width: 150px;
+    }
+
+    .form-control:focus {
+        border-color: #6366f1;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+    }
+
+    .card {
+        background: rgba(255,255,255,.9);
+        border-radius: 14px;
+        padding: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,.08);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .data-table thead {
+            background: #f1f5f9;
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-top: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .badge-confirmed {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .badge-shipping {
+        background: #ede9fe;
+        color: #7c3aed;
+    }
+
+    .badge-completed {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .badge-cancelled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .badge-default {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .amount-text {
+        font-weight: 700;
+        color: #059669;
+    }
+
+    .date-text {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .user-email {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .action-cell {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+        .action-cell .btn {
+            margin: 0 2px;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 30px;
+        color: #94a3b8;
+        font-style: italic;
+    }
+
+    .alert {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    .alert-success {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+
+    .stats-bar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        flex: 1;
+        min-width: 130px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 14px 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.06);
+        text-align: center;
+    }
+
+        .stat-card .stat-num {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+    .stat-all .stat-num {
+        color: #6366f1;
+    }
+
+    .stat-pending .stat-num {
+        color: #d97706;
+    }
+
+    .stat-completed .stat-num {
+        color: #16a34a;
+    }
+
+    .stat-cancelled .stat-num {
+        color: #dc2626;
+    }
+</style>
+
+@{
+    var allOrders = Model.ToList();
+    int totalAll = allOrders.Count;
+    int totalPending = allOrders.Count(o => o.Status == "Chờ xác nhận");
+    int totalCompleted = allOrders.Count(o => o.Status == "Hoàn thành");
+    int totalCancelled = allOrders.Count(o => o.Status == "Đã hủy");
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<!-- Thống kê nhanh -->
+<div class="stats-bar">
+    <div class="stat-card stat-all">
+        <div class="stat-num">@totalAll</div>
+        <div class="stat-label">Tổng đơn</div>
+    </div>
+    <div class="stat-card stat-pending">
+        <div class="stat-num">@totalPending</div>
+        <div class="stat-label">Chờ xác nhận</div>
+    </div>
+    <div class="stat-card stat-completed">
+        <div class="stat-num">@totalCompleted</div>
+        <div class="stat-label">Hoàn thành</div>
+    </div>
+    <div class="stat-card stat-cancelled">
+        <div class="stat-num">@totalCancelled</div>
+        <div class="stat-label">Đã hủy</div>
+    </div>
+</div>
+
+<!-- Bộ lọc -->
+@using (Html.BeginForm("Index", "Order", FormMethod.Get, new { @class = "filter-bar" }))
+{
+    <label>Tìm kiếm:</label>
+    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="ID, tên, email..." style="width:200px" />
+    <div class="filter-divider"></div>
+    <label>Trạng thái:</label>
+    <select name="status" class="form-control">
+        <option value="">Tất cả</option>
+        @foreach (var s in new[] { "Chờ xác nhận", "Đã xác nhận", "Đang giao", "Hoàn thành", "Đã hủy" })
+        {
+            if (ViewBag.Status == s)
+            {
+                <option value="@s" selected="selected">@s</option>
+ }
+            else
+            {
+                <option value="@s">@s</option>
+}
+        }
+    </select>
+    <button type="submit" class="btn btn-primary">Lọc</button>
+    <a href="@Url.Action("Index")" class="btn btn-outline">Xóa lọc</a>
+}
+
+<!-- Bảng đơn hàng -->
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Khách hàng</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th style="width:160px; text-align:center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6" class="empty-state">Không có đơn hàng nào.</td>
+                </tr>
+            }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-muted">#@item.OrderID</td>
+                    <td>
+                        @if (item.User != null)
+                        {
+                            <div class="user-name">@item.User.FullName</div>
+                            <div class="user-email">@item.User.Email</div>
+                        }
+                        else
+                        {
+                            <span class="user-email">Khách vãng lai</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="date-text">
+                            @(item.OrderDate.HasValue ? item.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "—")
+                        </span>
+                    </td>
+                    <td>
+                        <span class="amount-text">
+                            @(item.TotalAmount.HasValue ? String.Format("{0:N0}đ", item.TotalAmount.Value) : "—")
+                        </span>
+                    </td>
+                    <td>
+                        @{
+                            string badgeClass = "badge-default";
+                            switch (item.Status)
+                            {
+                                case "Chờ xác nhận": badgeClass = "badge-pending"; break;
+                                case "Đã xác nhận": badgeClass = "badge-confirmed"; break;
+                                case "Đang giao": badgeClass = "badge-shipping"; break;
+                                case "Hoàn thành": badgeClass = "badge-completed"; break;
+                                case "Đã hủy": badgeClass = "badge-cancelled"; break;
+                            }
+                        }
+                        <span class="badge @badgeClass">@(item.Status ?? "—")</span>
+                    </td>
+                    <td class="action-cell">
+                        <a href="@Url.Action("Details", "Order", new { id = item.OrderID })"
+                           class="btn btn-sm btn-info">Chi tiết</a>
+                        <a href="@Url.Action("Delete", "Order", new { id = item.OrderID })"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Bạn có chắc muốn xóa đơn hàng #@item.OrderID không?')">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
