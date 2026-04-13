@@ -1,0 +1,430 @@
+﻿@model Thue_san_the_thao.Models.Data.User
+@{
+    ViewBag.Title = "Thông tin cá nhân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    :root {
+        --green: #00CC33;
+        --green-dark: #009926;
+    }
+
+    .profile-wrap {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 16px 0 48px;
+    }
+
+    /* ===== CARD ===== */
+    .pro-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    /* ===== HEADER CARD: avatar + tên ===== */
+    .pro-header {
+        background: var(--green);
+        padding: 28px 28px 24px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .pro-avatar {
+        width: 70px;
+        height: 70px;
+        background: rgba(255,255,255,0.25);
+        border: 3px solid rgba(255,255,255,0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .pro-header-info .pro-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .pro-header-info .pro-email {
+        font-size: 13px;
+        color: rgba(255,255,255,0.8);
+        margin-top: 3px;
+    }
+
+    .pro-header-info .pro-joined {
+        font-size: 12px;
+        color: rgba(255,255,255,0.65);
+        margin-top: 3px;
+    }
+
+    /* ===== BODY CARD ===== */
+    .pro-body {
+        padding: 24px 28px;
+    }
+
+    .pro-section-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #94a3b8;
+        margin-bottom: 14px;
+    }
+
+    /* ===== INFO ROW (chỉ đọc) ===== */
+    .info-row {
+        display: flex;
+        align-items: center;
+        padding: 11px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-icon {
+        width: 32px;
+        height: 32px;
+        background: #f0fdf4;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--green);
+        font-size: 13px;
+        flex-shrink: 0;
+        margin-right: 12px;
+    }
+
+    .info-label {
+        width: 130px;
+        color: #94a3b8;
+        font-size: 13px;
+        flex-shrink: 0;
+    }
+
+    .info-value {
+        color: #1e293b;
+        font-weight: 500;
+        flex: 1;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #f0fdf4;
+        color: #16a34a;
+    }
+
+    .status-inactive {
+        background: #fff5f5;
+        color: #dc2626;
+    }
+
+    /* ===== FORM ===== */
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: 0.2s;
+        font-family: inherit;
+    }
+
+        .form-control:focus {
+            border-color: var(--green);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,204,51,0.12);
+            background: #fff;
+        }
+
+    .form-control-static {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn-green {
+        background: var(--green);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .btn-green:hover {
+            background: var(--green-dark);
+            transform: translateY(-1px);
+        }
+
+    .btn-orange {
+        background: #f59e0b;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .btn-orange:hover {
+            background: #d97706;
+        }
+
+    /* ===== ALERT ===== */
+    .alert {
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .alert-success {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+    }
+
+    .alert-danger {
+        background: #fff5f5;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    /* ===== MATCH MSG ===== */
+    .match-msg {
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+</style>
+
+<div class="profile-wrap">
+
+    @* Thông báo *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+    @if (TempData["PwSuccess"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> @TempData["PwSuccess"]
+        </div>
+    }
+    @if (TempData["PwError"] != null)
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> @TempData["PwError"]
+        </div>
+    }
+
+    @* ===== CARD 1: Thông tin cố định ===== *@
+    <div class="pro-card">
+        <div class="pro-header">
+            <div class="pro-avatar">
+                @Model.FullName.Substring(0, 1).ToUpper()
+            </div>
+            <div class="pro-header-info">
+                <div class="pro-name">@Model.FullName</div>
+                <div class="pro-email">@Model.Email</div>
+                <div class="pro-joined">
+                    Tham gia: @(Model.CreatedAt.HasValue ? Model.CreatedAt.Value.ToString("dd/MM/yyyy") : "—")
+                </div>
+            </div>
+        </div>
+
+        <div class="pro-body">
+            <div class="pro-section-title">Thông tin tài khoản</div>
+
+            <div class="info-row">
+                <div class="info-icon"><i class="fas fa-id-badge"></i></div>
+                <span class="info-label">Mã tài khoản</span>
+                <span class="info-value">ID : @Model.UserID</span>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                <span class="info-label">Email</span>
+                <span class="info-value">@Model.Email</span>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon"><i class="fas fa-phone"></i></div>
+                <span class="info-label">Số điện thoại</span>
+                <span class="info-value">@(string.IsNullOrEmpty(Model.Phone) ? "Chưa cập nhật" : Model.Phone)</span>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon"><i class="fas fa-circle-dot"></i></div>
+                <span class="info-label">Trạng thái</span>
+                <span class="info-value">
+                    @if (Model.Status == true)
+                    {
+                        <span class="status-badge status-active">
+                            <i class="fas fa-circle" style="font-size:7px"></i> Đang hoạt động
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="status-badge status-inactive">
+                            <i class="fas fa-circle" style="font-size:7px"></i> Bị khoá
+                        </span>
+                    }
+                </span>
+            </div>
+        </div>
+    </div>
+
+    @* ===== CARD 2: Cập nhật thông tin ===== *@
+    <div class="pro-card">
+        <div class="pro-body">
+            <div class="pro-section-title">Cập nhật thông tin</div>
+
+            @using (Html.BeginForm("UpdateInfo", "Account", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" name="FullName" value="@Model.FullName"
+                           class="form-control" placeholder="Nhập họ tên..." required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="tel" name="Phone" value="@Model.Phone"
+                           class="form-control" placeholder="Nhập số điện thoại..." />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <div class="form-control-static">@Model.Email</div>
+                    <small style="color:#94a3b8;font-size:12px;margin-top:4px;display:block">
+                        Email không thể thay đổi
+                    </small>
+                </div>
+
+                <button type="submit" class="btn-green">
+                    <i class="fas fa-save"></i> Lưu thay đổi
+                </button>
+            }
+        </div>
+    </div>
+
+    @* ===== CARD 3: Đổi mật khẩu ===== *@
+    <div class="pro-card">
+        <div class="pro-body">
+            <div class="pro-section-title">Đổi mật khẩu</div>
+
+            @using (Html.BeginForm("ChangePassword", "Account", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu hiện tại</label>
+                    <input type="password" name="OldPassword"
+                           class="form-control" placeholder="Nhập mật khẩu hiện tại..." required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu mới</label>
+                    <input type="password" name="NewPassword" id="newPw"
+                           class="form-control" placeholder="Ít nhất 6 ký tự..." required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Xác nhận mật khẩu mới</label>
+                    <input type="password" name="ConfirmPassword" id="confirmPw"
+                           class="form-control" placeholder="Nhập lại mật khẩu mới..." required />
+                    <div class="match-msg" id="matchMsg"></div>
+                </div>
+
+                <button type="submit" class="btn-orange">
+                    <i class="fas fa-key"></i> Đổi mật khẩu
+                </button>
+            }
+        </div>
+    </div>
+
+</div>
+
+@section scripts {
+    <script>// Kiểm tra mật khẩu khớp realtime
+    var newPw     = document.getElementById('newPw');
+    var confirmPw = document.getElementById('confirmPw');
+    var msg       = document.getElementById('matchMsg');
+
+    function checkMatch() {
+        if (!confirmPw.value) { msg.style.display = 'none'; return; }
+
+        msg.style.display = 'block';
+        if (newPw.value === confirmPw.value) {
+            msg.innerHTML   = '<i class="fas fa-check-circle"></i> Mật khẩu khớp';
+            msg.style.color = '#16a34a';
+        } else {
+            msg.innerHTML   = '<i class="fas fa-times-circle"></i> Mật khẩu không khớp';
+            msg.style.color = '#dc2626';
+        }
+    }
+
+    newPw.addEventListener('input', checkMatch);
+    confirmPw.addEventListener('input', checkMatch);</script>
+}

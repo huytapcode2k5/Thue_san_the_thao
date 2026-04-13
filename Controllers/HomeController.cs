@@ -6,7 +6,6 @@ using System.Web.Mvc;
 
 namespace Thue_san_the_thao.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
         // GET: Home

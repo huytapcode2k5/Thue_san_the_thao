@@ -1,0 +1,350 @@
+﻿@model Thue_san_the_thao.Models.Data.User
+@{
+    ViewBag.Title = "Thông tin tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+}
+
+<style>
+    .profile-wrap {
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .profile-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    /* Header card với avatar */
+    .profile-header {
+        background: linear-gradient(135deg, #33CCFF, #09a5d4);
+        padding: 32px 28px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .profile-avatar {
+        width: 72px;
+        height: 72px;
+        background: rgba(255,255,255,0.25);
+        border: 3px solid rgba(255,255,255,0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .profile-header-info .name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .profile-header-info .role {
+        font-size: 13px;
+        color: rgba(255,255,255,0.8);
+        margin-top: 4px;
+    }
+
+    .profile-header-info .joined {
+        font-size: 12px;
+        color: rgba(255,255,255,0.65);
+        margin-top: 4px;
+    }
+
+    /* Body card */
+    .profile-body {
+        padding: 28px;
+    }
+
+    .section-title {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #94a3b8;
+        margin-bottom: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: 0.2s;
+    }
+
+        .form-control:focus {
+            border-color: #33CCFF;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(51,204,255,0.15);
+            background: #fff;
+        }
+
+    /* Field chỉ đọc */
+    .form-control-readonly {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    /* Alert */
+    .alert {
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .alert-success {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+    }
+
+    .alert-danger {
+        background: #fff5f5;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    /* Divider */
+    .divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 24px 0;
+    }
+
+    /* Button */
+    .btn {
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-primary {
+        background: #33CCFF;
+        color: #fff;
+    }
+
+        .btn-primary:hover {
+            background: #09a5d4;
+        }
+
+    .btn-warning {
+        background: #f59e0b;
+        color: #fff;
+    }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+    /* Info readonly row */
+    .info-row {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        width: 140px;
+        color: #94a3b8;
+        font-size: 13px;
+        flex-shrink: 0;
+    }
+
+    .info-value {
+        color: #1e293b;
+        font-weight: 500;
+    }
+</style>
+
+<div class="profile-wrap">
+
+    @* Thông báo thành công / lỗi *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+    @if (TempData["PwSuccess"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> @TempData["PwSuccess"]
+        </div>
+    }
+    @if (TempData["PwError"] != null)
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> @TempData["PwError"]
+        </div>
+    }
+
+    @* ===== CARD 1: Avatar + thông tin cố định ===== *@
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                @Model.FullName.Substring(0, 1).ToUpper()
+            </div>
+            <div class="profile-header-info">
+                <div class="name">@Model.FullName</div>
+                <div class="role">Quản trị viên</div>
+                <div class="joined">
+                    Tham gia: @(Model.CreatedAt.HasValue ? Model.CreatedAt.Value.ToString("dd/MM/yyyy") : "—")
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-body">
+            <div class="section-title">Thông tin cố định</div>
+
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-envelope" style="width:16px"></i> Email</span>
+                <span class="info-value">@Model.Email</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-id-badge" style="width:16px"></i> Mã tài khoản</span>
+                <span class="info-value">ID : @Model.UserID</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-circle" style="width:16px;color:@(Model.Status==true?"#22c55e":"#ef4444")"></i> Trạng thái</span>
+                <span class="info-value" style="color:@(Model.Status==true?"#22c55e":"#ef4444")">
+                    @(Model.Status == true ? "Đang hoạt động" : "Bị khoá")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    @* ===== CARD 2: Cập nhật thông tin ===== *@
+    <div class="profile-card">
+        <div class="profile-body">
+            <div class="section-title">Cập nhật thông tin</div>
+
+            @using (Html.BeginForm("Index", "Profile", new { area = "Admin" }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" name="FullName" value="@Model.FullName"
+                           class="form-control" placeholder="Nhập họ tên..." required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="tel" name="Phone" value="@Model.Phone"
+                           class="form-control" placeholder="Nhập số điện thoại..." />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <div class="form-control-readonly">@Model.Email</div>
+                    <small style="color:#94a3b8;font-size:12px">Email không thể thay đổi</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Lưu thay đổi
+                </button>
+            }
+        </div>
+    </div>
+
+    @* ===== CARD 3: Đổi mật khẩu ===== *@
+    <div class="profile-card">
+        <div class="profile-body">
+            <div class="section-title">Đổi mật khẩu</div>
+
+            @using (Html.BeginForm("ChangePassword", "Profile", new { area = "Admin" }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu hiện tại</label>
+                    <input type="password" name="OldPassword"
+                           class="form-control" placeholder="Nhập mật khẩu hiện tại..." required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu mới</label>
+                    <input type="password" name="NewPassword" id="newPw"
+                           class="form-control" placeholder="Ít nhất 6 ký tự..." required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Xác nhận mật khẩu mới</label>
+                    <input type="password" name="ConfirmPassword" id="confirmPw"
+                           class="form-control" placeholder="Nhập lại mật khẩu mới..." required />
+                    <small id="pwMatchMsg" style="font-size:12px;margin-top:4px;display:none"></small>
+                </div>
+
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-key"></i> Đổi mật khẩu
+                </button>
+            }
+        </div>
+    </div>
+
+</div>
+
+<script>// Kiểm tra mật khẩu khớp nhau realtime
+    var newPw     = document.getElementById('newPw');
+    var confirmPw = document.getElementById('confirmPw');
+    var msg       = document.getElementById('pwMatchMsg');
+
+    function checkMatch() {
+        if (!confirmPw.value) { msg.style.display = 'none'; return; }
+        if (newPw.value === confirmPw.value) {
+            msg.textContent   = '✓ Mật khẩu khớp';
+            msg.style.color   = '#16a34a';
+            msg.style.display = 'block';
+        } else {
+            msg.textContent   = '✗ Mật khẩu không khớp';
+            msg.style.color   = '#dc2626';
+            msg.style.display = 'block';
+        }
+    }
+
+    newPw.addEventListener('input', checkMatch);
+    confirmPw.addEventListener('input', checkMatch);</script>

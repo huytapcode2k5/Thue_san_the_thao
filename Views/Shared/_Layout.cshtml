@@ -560,7 +560,7 @@
         <div class="container">
 
             <!-- Brand -->
-            <a class="nav-brand" href="/">
+            <a class="nav-brand" href="/Home/Trangchu">
                 <span class="brand-icon">🏟️</span>
                 <span>
                     Thuê Sân
@@ -579,7 +579,7 @@
                 <!-- Left links -->
                 <ul class="nav-links">
                     <li>
-                        <a class="nav-link" href="/"><i class="fas fa-home"></i> Trang chủ</a>
+                        <a class="nav-link" href="/Home/Trangchu"><i class="fas fa-home"></i> Trang chủ</a>
                     </li>
                     <li>
                         <a class="nav-link" href="/Booking"><i class="fas fa-calendar-check"></i> Đặt sân</a>
@@ -635,7 +635,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider" /></li>
                                 <li>
-                                    <a class="dropdown-item logout" href="/Account/Login">
+                                    <a class="dropdown-item logout" href="/Account/Logout">
                                         <i class="fas fa-right-from-bracket"></i> Đăng xuất
                                     </a>
                                 </li>
@@ -645,8 +645,8 @@
                     else
                     {
                         <li>
-                            <a class="btn-login" href="/Account/Login">
-                                 Đăng nhập
+                            <a class="btn-login" href="@Url.Action("Login", "Account")">
+                                Đăng nhập
                             </a>
                         </li>
                     }

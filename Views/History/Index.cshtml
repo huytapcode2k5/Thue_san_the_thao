@@ -1,0 +1,486 @@
+﻿@using Thue_san_the_thao.Models
+@using System.Collections.Generic
+
+@{
+    ViewBag.Title = "Lịch sử của tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var tab = ViewBag.Tab as string ?? "booking";
+    var bookings = ViewBag.Bookings as List<BookingHistoryVM> ?? new List<BookingHistoryVM>();
+    var orders = ViewBag.Orders as List<OrderHistoryVM> ?? new List<OrderHistoryVM>();
+}
+
+<style>
+    :root {
+        --green: #00CC33;
+        --green-dark: #009926;
+    }
+
+    .history-wrap {
+        padding: 24px 0 60px;
+    }
+
+    .page-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 20px;
+    }
+
+    .tab-bar {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 0;
+    }
+
+    .tab-btn {
+        padding: 10px 20px;
+        border: none;
+        background: none;
+        font-size: 14px;
+        font-weight: 600;
+        color: #94a3b8;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        text-decoration: none;
+    }
+
+        .tab-btn:hover {
+            color: var(--green);
+        }
+
+        .tab-btn.active {
+            color: var(--green);
+            border-bottom-color: var(--green);
+        }
+
+    .tab-count {
+        background: var(--green);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 1px 7px;
+        border-radius: 20px;
+    }
+
+    .his-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        margin-bottom: 14px;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        transition: box-shadow 0.2s;
+    }
+
+        .his-card:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+    .his-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+        background: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .his-card-id {
+        font-size: 13px;
+        font-weight: 700;
+        color: #475569;
+    }
+
+    .his-card-date {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    .his-card-body {
+        padding: 16px 18px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .his-info-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .his-field-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 4px;
+    }
+
+    .his-meta {
+        font-size: 13px;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 3px;
+    }
+
+        .his-meta i {
+            color: var(--green);
+            width: 14px;
+            font-size: 12px;
+        }
+
+    .his-card-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .badge-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-pending {
+        background: #fef9c3;
+        color: #92400e;
+    }
+
+    .badge-confirmed {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-cancel {
+        background: none;
+        border: 1px solid #fca5a5;
+        color: #dc2626;
+        border-radius: 8px;
+        padding: 5px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-cancel:hover {
+            background: #fff5f5;
+        }
+
+    .order-items {
+        padding: 0 18px 16px;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-top: 1px solid #f1f5f9;
+    }
+
+        .order-item:first-child {
+            border-top: none;
+        }
+
+    .order-item-img {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #f1f5f9;
+        flex-shrink: 0;
+    }
+
+    .order-item-img-ph {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e1;
+        flex-shrink: 0;
+    }
+
+    .order-item-name {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e293b;
+    }
+
+    .order-item-qty {
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .order-item-price {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--green-dark);
+    }
+
+    .order-total {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 18px;
+        border-top: 1px solid #f1f5f9;
+        background: #f8fafc;
+    }
+
+    .order-total-label {
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .order-total-val {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--green-dark);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: #94a3b8;
+    }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 14px;
+            display: block;
+            color: #e2e8f0;
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+    .btn-go {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--green);
+        color: #fff;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+        .btn-go:hover {
+            background: var(--green-dark);
+            color: #fff;
+        }
+
+    .alert-success {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+</style>
+
+<div class="history-wrap">
+
+    <div class="page-title">Lịch sử của tôi</div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+
+    @* ===== TAB BAR ===== *@
+    <div class="tab-bar">
+        <a href="@Url.Action("Index", "History", new { tab = "booking" })"
+           class="tab-btn @(tab == "booking" ? "active" : "")">
+            <i class="fas fa-calendar-check"></i>
+            Đặt sân
+            <span class="tab-count">@bookings.Count</span>
+        </a>
+        <a href="@Url.Action("Index", "History", new { tab = "order" })"
+           class="tab-btn @(tab == "order" ? "active" : "")">
+            <i class="fas fa-box"></i>
+            Đơn hàng
+            <span class="tab-count">@orders.Count</span>
+        </a>
+    </div>
+
+    @* ===== TAB: ĐẶT SÂN ===== *@
+    @if (tab == "booking")
+    {
+        if (!bookings.Any())
+        {
+            <div class="empty-state">
+                <i class="fas fa-calendar-xmark"></i>
+                <p>Bạn chưa có lần đặt sân nào</p>
+                <a href="/Booking" class="btn-go">
+                    <i class="fas fa-calendar-check"></i> Đặt sân ngay
+                </a>
+            </div>
+        }
+        else
+        {
+            foreach (var b in bookings)
+            {
+                <div class="his-card">
+                    <div class="his-card-head">
+                        <span class="his-card-id">#@b.BookingID</span>
+                        <span class="his-card-date">
+                            <i class="fas fa-clock" style="font-size:11px"></i>
+                            Đặt lúc: @b.CreatedAt
+                        </span>
+                    </div>
+
+                    <div class="his-card-body">
+                        <div class="his-info-group">
+                            <div class="his-field-name">@b.FieldName</div>
+                            <div class="his-meta"><i class="fas fa-building"></i> @b.FacilityName</div>
+                            <div class="his-meta"><i class="fas fa-futbol"></i> @b.FieldType</div>
+                            <div class="his-meta"><i class="fas fa-calendar"></i> @b.BookingDate</div>
+                            <div class="his-meta"><i class="fas fa-clock"></i> @b.StartTime – @b.EndTime</div>
+                        </div>
+
+                        <div class="his-card-actions">
+                            @{
+                                var bCls = b.Status == "confirmed" ? "badge-confirmed"
+                                         : b.Status == "completed" ? "badge-completed"
+                                         : b.Status == "cancelled" ? "badge-cancelled"
+                                         : "badge-pending";
+                                var bTxt = b.Status == "confirmed" ? "Đã xác nhận"
+                                         : b.Status == "completed" ? "Hoàn thành"
+                                         : b.Status == "cancelled" ? "Đã huỷ"
+                                         : "Chờ xác nhận";
+                            }
+                            <span class="badge-status @bCls">@bTxt</span>
+
+                            @if (b.Status == "pending")
+                            {
+                                using (Html.BeginForm("CancelBooking", "History", FormMethod.Post, new { style = "margin:0" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@b.BookingID" />
+                                    <button type="submit" class="btn-cancel"
+                                            onclick="return confirm('Bạn có chắc muốn huỷ đặt sân này?')">
+                                        Huỷ đặt
+                                    </button>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+
+    @* ===== TAB: ĐƠN HÀNG SẢN PHẨM ===== *@
+    @if (tab == "order")
+    {
+        if (!orders.Any())
+        {
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <p>Bạn chưa có đơn hàng nào</p>
+                <a href="/Product" class="btn-go">
+                    <i class="fas fa-store"></i> Mua sắm ngay
+                </a>
+            </div>
+        }
+        else
+        {
+            foreach (var o in orders)
+            {
+                <div class="his-card">
+                    <div class="his-card-head">
+                        <span class="his-card-id">Đơn #@o.OrderID</span>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            @{
+                                var oCls = o.Status == "confirmed" ? "badge-confirmed"
+                                         : o.Status == "completed" || o.Status == "delivered" ? "badge-completed"
+                                         : o.Status == "cancelled" ? "badge-cancelled"
+                                         : "badge-pending";
+                                var oTxt = o.Status == "confirmed" ? "Đã xác nhận"
+                                         : o.Status == "completed" ? "Hoàn thành"
+                                         : o.Status == "delivered" ? "Đã giao"
+                                         : o.Status == "cancelled" ? "Đã huỷ"
+                                         : "Chờ xử lý";
+                            }
+                            <span class="badge-status @oCls">@oTxt</span>
+                            <span class="his-card-date">@o.OrderDate</span>
+                        </div>
+                    </div>
+
+                    <div class="order-items">
+                        @foreach (var item in o.Items)
+                        {
+                            <div class="order-item">
+                                @if (!string.IsNullOrEmpty(item.Image))
+                                {
+                                    <img src="~/Images/@item.Image" class="order-item-img" alt="@item.ProductName" />
+                                }
+                                else
+                                {
+                                    <div class="order-item-img-ph"><i class="fas fa-image"></i></div>
+                                }
+                                <span class="order-item-name">@item.ProductName</span>
+                                <span class="order-item-qty">x@item.Quantity</span>
+                                <span class="order-item-price">@String.Format("{0:N0}đ", item.Price * item.Quantity)</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="order-total">
+                        <span class="order-total-label">
+                            <i class="fas fa-credit-card" style="font-size:12px"></i>
+                            @o.PayMethod &nbsp;·&nbsp; Tổng:
+                        </span>
+                        <span class="order-total-val">@String.Format("{0:N0}đ", o.TotalAmount)</span>
+                    </div>
+                </div>
+            }
+        }
+    }
+
+</div>
