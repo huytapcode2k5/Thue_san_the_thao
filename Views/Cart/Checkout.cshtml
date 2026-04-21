@@ -1,0 +1,380 @@
+﻿@using Thue_san_the_thao.Models.Data
+@using System.Collections.Generic
+@model List<CartItem>
+
+@{
+    ViewBag.Title = "Thanh toán";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    decimal total = Model.Sum(i => i.Product.Price * (i.Quantity ?? 1));
+
+    // Lấy thông tin user điền sẵn vào form
+    var userId = Session["UserId"];
+    Thue_san_the_thao.Models.Data.User currentUser = null;
+    if (userId != null)
+    {
+        var db = new Thue_san_the_thao.Models.Data.Quan_ly_thue_san_the_thao_webncEntities();
+        currentUser = db.Users.Find((int)userId);
+    }
+}
+
+<style>
+    :root {
+        --green: #00CC33;
+        --green-dark: #009926;
+    }
+
+    .checkout-wrap {
+        padding: 32px 0 60px;
+    }
+
+    .page-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        border: 1px solid #f1f5f9;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Order items */
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-top: 1px solid #f8fafc;
+    }
+
+        .order-item:first-child {
+            border-top: none;
+        }
+
+    .order-img {
+        width: 52px;
+        height: 52px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #f1f5f9;
+        flex-shrink: 0;
+    }
+
+    .order-img-ph {
+        width: 52px;
+        height: 52px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e1;
+        flex-shrink: 0;
+    }
+
+    .order-name {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e293b;
+    }
+
+    .order-qty {
+        font-size: 13px;
+        color: #94a3b8;
+    }
+
+    .order-price {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--green-dark);
+    }
+
+    /* Summary */
+    .sum-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 10px;
+    }
+
+    .sum-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 20px;
+        font-weight: 800;
+        color: #1e293b;
+        padding-top: 14px;
+        border-top: 2px solid #f1f5f9;
+        margin-top: 6px;
+    }
+
+        .sum-total span:last-child {
+            color: var(--green-dark);
+        }
+
+    /* Pay method */
+    .pay-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        cursor: pointer;
+        transition: .2s;
+        margin-bottom: 10px;
+    }
+
+        .pay-option.selected {
+            border-color: var(--green);
+            background: #f0fdf4;
+        }
+
+        .pay-option input {
+            accent-color: var(--green);
+        }
+
+    .pay-option-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .pay-option-desc {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
+
+    .btn-place {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background: var(--green);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: .2s;
+    }
+
+        .btn-place:hover {
+            background: var(--green-dark);
+        }
+
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 12px;
+        font-size: 13px;
+        color: #94a3b8;
+        text-decoration: none;
+    }
+
+        .back-link:hover {
+            color: var(--green);
+        }
+
+    /* ===== Form địa chỉ ===== */
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+            .form-group label .req {
+                color: #ef4444;
+            }
+
+    .form-control {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        background: #f8fafc;
+        font-family: inherit;
+        color: #1e293b;
+        transition: 0.2s;
+    }
+
+        .form-control:focus {
+            border-color: var(--green);
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,204,51,0.12);
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+</style>
+
+<div class="checkout-wrap">
+    <div class="page-title">
+        <i class="fas fa-credit-card" style="color:var(--green)"></i> Thanh toán
+    </div>
+
+    <div class="row g-4">
+
+
+        <div class="col-lg-7">
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-box"></i> Sản phẩm đặt mua</div>
+                @foreach (var item in Model)
+                {
+                    <div class="order-item">
+                        @if (!string.IsNullOrEmpty(item.Product?.Image))
+                        {
+                            <img src="~/Images/@item.Product.Image" class="order-img" alt="@item.Product.Name" />
+                        }
+                        else
+                        {
+                            <div class="order-img-ph"><i class="fas fa-image"></i></div>
+                        }
+                        <span class="order-name">@item.Product.Name</span>
+                        <span class="order-qty">x@(item.Quantity)</span>
+                        <span class="order-price">@String.Format("{0:N0}đ", item.Product?.Price * (item.Quantity ?? 1))</span>
+                    </div>
+                }
+            </div>
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-location-dot"></i> Địa chỉ nhận hàng</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Họ tên người nhận <span class="req">*</span></label>
+                        <input type="text" name="ReceiverName" class="form-control"
+                               value="@(currentUser?.FullName)" placeholder="Tên người nhận" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại <span class="req">*</span></label>
+                        <input type="tel" name="ReceiverPhone" class="form-control"
+                               value="@(currentUser?.Phone)" placeholder="SĐT nhận hàng" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Địa chỉ giao hàng <span class="req">*</span></label>
+                    <input type="text" name="ShippingAddress" class="form-control"
+                           placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành" required />
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                    <label>Ghi chú (tuỳ chọn)</label>
+                    <textarea name="ShippingNote" class="form-control"
+                              placeholder="Giao giờ hành chính, gọi trước khi giao..."></textarea>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-wallet"></i> Phương thức thanh toán</div>
+                <div class="pay-option selected" id="opt-qr" onclick="selectPay('qr')">
+                    <input type="radio" name="pay" value="qr" checked />
+                    <div>
+                        <div class="pay-option-label">🏦 Chuyển khoản QR</div>
+                        <div class="pay-option-desc">Quét mã QR — hỗ trợ tất cả ngân hàng Việt Nam</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-5">
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-receipt"></i> Tóm tắt đơn hàng</div>
+                <div class="sum-row">
+                    <span>Tạm tính (@Model.Sum(i => i.Quantity ?? 1) sản phẩm)</span>
+                    <span>@String.Format("{0:N0}đ", total)</span>
+                </div>
+                <div class="sum-row">
+                    <span>Phí vận chuyển</span>
+                    <span style="color:#16a34a">Miễn phí</span>
+                </div>
+                <div class="sum-total">
+                    <span>Tổng cộng</span>
+                    <span>@String.Format("{0:N0}đ", total)</span>
+                </div>
+
+                @using (Html.BeginForm("PlaceOrder", "Cart", FormMethod.Post, new { id = "checkoutForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @* Hidden inputs để submit địa chỉ từ form bên trái *@
+                    <input type="hidden" name="ReceiverName" id="hReceiverName" />
+                    <input type="hidden" name="ReceiverPhone" id="hReceiverPhone" />
+                    <input type="hidden" name="ShippingAddress" id="hShippingAddress" />
+                    <input type="hidden" name="ShippingNote" id="hShippingNote" />
+                    <button type="submit" class="btn-place" onclick="return copyFields()">
+                        <i class="fas fa-qrcode"></i> Xem mã QR thanh toán
+                    </button>
+                }
+
+                <a href="@Url.Action("Index", "Cart")" class="back-link">← Quay lại giỏ hàng</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        function selectPay(val) {
+            document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('selected'));
+            document.getElementById('opt-' + val).classList.add('selected');
+        }
+
+        function copyFields() {
+            // Lấy giá trị từ input địa chỉ bên trái copy sang hidden input của form bên phải
+            var name = document.querySelector('input[name="ReceiverName"]');
+            var phone = document.querySelector('input[name="ReceiverPhone"]');
+            var address = document.querySelector('input[name="ShippingAddress"]');
+            var note = document.querySelector('textarea[name="ShippingNote"]');
+
+            // Validate
+            if (!name?.value.trim()) { alert('Vui lòng nhập tên người nhận!'); return false; }
+            if (!phone?.value.trim()) { alert('Vui lòng nhập số điện thoại!'); return false; }
+            if (!address?.value.trim()) { alert('Vui lòng nhập địa chỉ giao hàng!'); return false; }
+
+            document.getElementById('hReceiverName').value = name.value;
+            document.getElementById('hReceiverPhone').value = phone.value;
+            document.getElementById('hShippingAddress').value = address.value;
+            document.getElementById('hShippingNote').value = note?.value || '';
+            return true;
+        }
+    </script>
+}

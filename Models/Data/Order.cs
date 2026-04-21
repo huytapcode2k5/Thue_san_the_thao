@@ -26,6 +26,10 @@ namespace Thue_san_the_thao.Models.Data
         public Nullable<System.DateTime> OrderDate { get; set; }
         public Nullable<decimal> TotalAmount { get; set; }
         public string Status { get; set; }
+        public string ReceiverName { get; set; }
+        public string ReceiverPhone { get; set; }
+        public string ShippingAddress { get; set; }
+        public string ShippingNote { get; set; }
     
         public virtual Booking Booking { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }

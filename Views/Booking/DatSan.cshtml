@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "Đặt Sân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="text-center mb-4">
+    <h2 class="fw-bold text-success">🏟️ Đặt Sân Thể Thao</h2>
+    <p class="text-muted">Chọn loại sân và đặt lịch nhanh chóng</p>
+</div>
+
+<div class="d-flex justify-content-center gap-3 mb-5">
+    <button class="btn-filter active" onclick="showFields('football', this)">⚽ Bóng đá</button>
+    <button class="btn-filter" onclick="showFields('badminton', this)">🏸 Cầu lông</button>
+    <button class="btn-filter" onclick="showFields('tennis', this)">🎾 Tennis</button>
+    <button class="btn-filter" onclick="showFields('pickleball', this)">🏓 Pickleball</button>
+</div>
+
+<div class="row" id="fieldList"></div>
+
+<script>
+    // FIX: dung dung duong dan ~/Images/field/ (chu hoa I, folder field)
+    const baseImg = '@Url.Content("~/Images/field/")';
+    const data = @Html.Raw(ViewBag.FieldsJson ?? "{}");
+
+    function showFields(type, btn) {
+        document.querySelectorAll(".btn-filter").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const list = document.getElementById("fieldList");
+        list.style.opacity = 0;
+        list.style.transform = "translateY(20px)";
+
+        setTimeout(() => {
+            list.innerHTML = "";
+            var fields = data[type] || [];
+            if (fields.length === 0) {
+                list.innerHTML = '<div class="col-12 text-center text-muted py-5"><p style="font-size:18px">Chưa có sân nào trong loại này.</p></div>';
+            } else {
+                fields.forEach(function(f, index) {
+                    list.innerHTML +=
+                        '<div class="col-md-3 mb-4">'
+                        + '<div class="field-card" style="animation-delay:' + (index * 0.1) + 's">'
+                        + '<img src="' + baseImg + f.img + '" onerror="this.src=\'https://via.placeholder.com/300x230?text=No+Image\'" />'
+                        + '<div class="overlay"></div>'
+                        + '<div class="content">'
+                        + '<h5>' + f.name + '</h5>'
+                        + '<p>' + '200.000 VNĐ / giờ</p>'
+                        + '<a href="/Booking/Index?fieldId=' + f.id + '" class="btn-book">Đặt ngay</a>'
+                        + '</div></div></div>';
+                });
+            }
+            list.style.opacity = 1;
+            list.style.transform = "translateY(0)";
+        }, 200);
+    }
+
+    // Hien thi mac dinh tab football khi load trang
+    showFields('football', document.querySelector(".btn-filter"));
+</script>
+
+<style>
+    .btn-filter {
+        background: #e8f5e9;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 30px;
+        font-weight: 600;
+        color: #2e7d32;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            background: #c8e6c9;
+        }
+
+        .btn-filter.active {
+            background: #2e7d32;
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+    .field-card {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        animation: fadeUp 0.5s ease forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+        .field-card img {
+            width: 100%;
+            height: 230px;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .field-card:hover img {
+            transform: scale(1.15);
+        }
+
+    .overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    }
+
+    .content {
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        color: #fff;
+    }
+
+        .content h5 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .content p {
+            margin: 5px 0;
+            font-weight: 600;
+            color: #ffd54f;
+        }
+
+    .btn-book {
+        display: inline-block;
+        margin-top: 6px;
+        padding: 6px 14px;
+        background: #00c853;
+        border-radius: 20px;
+        color: #fff;
+        font-size: 13px;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+        .btn-book:hover {
+            background: #00a844;
+            transform: scale(1.05);
+        }
+
+    @@keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    #fieldList {
+        transition: all 0.3s ease;
+    }
+</style>

@@ -1,0 +1,470 @@
+﻿@{
+    ViewBag.Title = "Thanh toán đặt sân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string bankId = "BIDV";
+    string accountNo = "8810383002";
+    string accountName = "NGUYEN VAN HUY";
+    long amount = (long)(ViewBag.Amount ?? 0);
+    int slotCount = (int)(ViewBag.SlotCount ?? 1);
+    string addInfo = "DATSAN" + DateTime.Now.ToString("yyyyMMddHHmm");
+    string qrUrl = $"https://img.vietqr.io/image/{bankId}-{accountNo}-compact2.png?amount={amount}&addInfo={Uri.EscapeDataString(addInfo)}&accountName={Uri.EscapeDataString(accountName)}";
+}
+
+<style>
+    :root {
+        --green: #00CC33;
+        --green-dark: #009926;
+    }
+
+    .qr-wrap {
+        padding: 32px 0 60px;
+    }
+
+    .page-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .page-sub {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 32px;
+    }
+
+    .steps {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        margin-bottom: 36px;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .step-circle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        background: #e2e8f0;
+        color: #94a3b8;
+    }
+
+        .step-circle.done {
+            background: var(--green-dark);
+            color: #fff;
+        }
+
+        .step-circle.active {
+            background: var(--green);
+            color: #fff;
+        }
+
+    .step-label {
+        font-size: 11px;
+        color: #94a3b8;
+    }
+
+        .step-label.active {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .step-label.done {
+            color: var(--green-dark);
+            font-weight: 600;
+        }
+
+    .step-line {
+        flex: 1;
+        height: 2px;
+        background: #e2e8f0;
+        margin: 0 10px;
+        margin-bottom: 18px;
+    }
+
+        .step-line.done {
+            background: var(--green);
+        }
+
+    .qr-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        border: 1px solid #f1f5f9;
+        max-width: 480px;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    .qr-card-head {
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        padding: 20px 24px;
+        text-align: center;
+        color: #fff;
+    }
+
+        .qr-card-head h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
+
+        .qr-card-head p {
+            font-size: 13px;
+            opacity: .85;
+            margin: 0;
+        }
+
+    .qr-card-body {
+        padding: 28px 24px;
+    }
+
+    .booking-info {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+    }
+
+    .booking-info-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        padding: 5px 0;
+        border-bottom: 1px solid #dcfce7;
+    }
+
+        .booking-info-row:last-child {
+            border-bottom: none;
+        }
+
+    .booking-info-label {
+        color: #64748b;
+    }
+
+    .booking-info-val {
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+        .booking-info-val.total {
+            color: var(--green-dark);
+            font-size: 16px;
+        }
+
+    .qr-img-wrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+        .qr-img-wrap img {
+            width: 210px;
+            height: 210px;
+            border-radius: 12px;
+            border: 3px solid #f1f5f9;
+            object-fit: contain;
+        }
+
+    .qr-loading {
+        width: 210px;
+        height: 210px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 3px solid #f1f5f9;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: #94a3b8;
+        font-size: 13px;
+    }
+
+    .bank-info {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+    }
+
+    .bank-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+
+        .bank-row:last-child {
+            border-bottom: none;
+        }
+
+    .bank-row-label {
+        color: #64748b;
+    }
+
+    .bank-row-val {
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .bank-row-val.amount {
+            color: var(--green-dark);
+            font-size: 18px;
+        }
+
+        .bank-row-val.highlight {
+            color: #f59e0b;
+        }
+
+    .btn-copy {
+        background: none;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: 11px;
+        color: #64748b;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .btn-copy:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-copy.copied {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+    .note-box {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #92400e;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-confirm {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        background: var(--green);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .btn-confirm:hover {
+            background: var(--green-dark);
+        }
+
+    .btn-back {
+        display: block;
+        text-align: center;
+        margin-top: 12px;
+        font-size: 13px;
+        color: #94a3b8;
+        text-decoration: none;
+    }
+
+        .btn-back:hover {
+            color: var(--green);
+        }
+
+    .timer-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .timer-count {
+        font-weight: 700;
+        color: #dc2626;
+        font-size: 16px;
+    }
+</style>
+
+<div class="qr-wrap">
+    <div class="page-title">
+        <i class="fas fa-qrcode" style="color:var(--green)"></i> Thanh toán đặt sân
+    </div>
+    <div class="page-sub">Quét mã bên dưới bằng app ngân hàng, sau đó nhấn xác nhận</div>
+
+    <div class="steps">
+        <div class="step-item">
+            <div class="step-circle done"><i class="fas fa-check" style="font-size:11px"></i></div>
+            <div class="step-label done">Chọn sân</div>
+        </div>
+        <div class="step-line done"></div>
+        <div class="step-item">
+            <div class="step-circle done"><i class="fas fa-check" style="font-size:11px"></i></div>
+            <div class="step-label done">Chọn giờ</div>
+        </div>
+        <div class="step-line done"></div>
+        <div class="step-item">
+            <div class="step-circle active">3</div>
+            <div class="step-label active">Thanh toán</div>
+        </div>
+    </div>
+
+    <div class="qr-card">
+        <div class="qr-card-head">
+            <h4>🏦 Thanh toán chuyển khoản</h4>
+            <p>Mã QR tự động điền đầy đủ thông tin</p>
+        </div>
+        <div class="qr-card-body">
+
+            @* Thông tin đặt sân *@
+            <div class="booking-info">
+                <div class="booking-info-row">
+                    <span class="booking-info-label">Sân</span>
+                    <span class="booking-info-val">@ViewBag.FieldName</span>
+                </div>
+                <div class="booking-info-row">
+                    <span class="booking-info-label">Ngày</span>
+                    <span class="booking-info-val">@ViewBag.BookingDate</span>
+                </div>
+                <div class="booking-info-row">
+                    <span class="booking-info-label">Khung giờ</span>
+                    <span class="booking-info-val">@ViewBag.StartTime – @ViewBag.EndTime (@slotCount khung)</span>
+                </div>
+                <div class="booking-info-row">
+                    <span class="booking-info-label">Tổng tiền</span>
+                    <span class="booking-info-val total">@String.Format("{0:N0}đ", amount)</span>
+                </div>
+            </div>
+
+            @* Đếm ngược *@
+            <div class="timer-wrap">
+                <i class="fas fa-clock"></i>
+                Mã QR hết hạn sau: <span class="timer-count" id="timer">15:00</span>
+            </div>
+
+            @* QR Image *@
+            <div class="qr-img-wrap">
+                <div class="qr-loading" id="qrLoading">
+                    <i class="fas fa-spinner fa-spin" style="font-size:28px;color:var(--green)"></i>
+                    Đang tải mã QR...
+                </div>
+                <img id="qrImg" src="@qrUrl" alt="QR thanh toán" style="display:none"
+                     onload="document.getElementById('qrLoading').style.display='none'; this.style.display='block';"
+                     onerror="document.getElementById('qrLoading').innerHTML='<i class=\'fas fa-exclamation-triangle\' style=\'color:#f59e0b;font-size:28px\'></i><span>Không tải được QR</span>';" />
+            </div>
+
+            @* Thông tin ngân hàng *@
+            <div class="bank-info">
+                <div class="bank-row">
+                    <span class="bank-row-label">Ngân hàng</span>
+                    <span class="bank-row-val">@bankId</span>
+                </div>
+                <div class="bank-row">
+                    <span class="bank-row-label">Số tài khoản</span>
+                    <span class="bank-row-val">
+                        @accountNo
+                        <button class="btn-copy" onclick="copyText('@accountNo', this)"><i class="fas fa-copy"></i> Copy</button>
+                    </span>
+                </div>
+                <div class="bank-row">
+                    <span class="bank-row-label">Chủ tài khoản</span>
+                    <span class="bank-row-val">@accountName</span>
+                </div>
+                <div class="bank-row">
+                    <span class="bank-row-label">Số tiền</span>
+                    <span class="bank-row-val amount">@String.Format("{0:N0}đ", amount)</span>
+                </div>
+                <div class="bank-row">
+                    <span class="bank-row-label">Nội dung CK</span>
+                    <span class="bank-row-val highlight">
+                        @addInfo
+                        <button class="btn-copy" onclick="copyText('@addInfo', this)"><i class="fas fa-copy"></i> Copy</button>
+                    </span>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <i class="fas fa-triangle-exclamation" style="flex-shrink:0;margin-top:1px"></i>
+                <span>Chỉ nhấn <strong>"Tôi đã chuyển khoản"</strong> sau khi đã thực sự chuyển tiền. Lúc đó các khung giờ mới được giữ lại cho bạn.</span>
+            </div>
+
+            @using (Html.BeginForm("ConfirmBookingPayment", "Booking", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-confirm"
+                        onclick="return confirm('Bạn xác nhận đã chuyển khoản thành công?')">
+                    <i class="fas fa-check-circle"></i> Tôi đã chuyển khoản xong
+                </button>
+            }
+
+            <a href="@Url.Action("DatSan", "Booking")" class="btn-back">← Quay lại chọn sân</a>
+
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        let seconds = 15 * 60;
+        const timerEl = document.getElementById('timer');
+        const interval = setInterval(() => {
+            seconds--;
+            if (seconds <= 0) {
+                clearInterval(interval);
+                timerEl.textContent = 'Hết hạn';
+                timerEl.style.color = '#94a3b8';
+                return;
+            }
+            const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            timerEl.textContent = `${m}:${s}`;
+        }, 1000);
+
+        function copyText(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> Đã copy';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+}

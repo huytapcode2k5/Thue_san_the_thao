@@ -64,15 +64,47 @@ namespace Thue_san_the_thao.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateStatus(int id, string status)
         {
-            var order = db.Orders.Find(id);
+            var order = db.Orders
+                          .Include("OrderDetails.Product")
+                          .FirstOrDefault(o => o.OrderID == id);
+
             if (order == null)
                 return HttpNotFound();
+
+            // Không cho đổi lại nếu đã hoàn thành hoặc đã huỷ
+            if (order.Status == "Hoàn thành" || order.Status == "Đã hủy")
+            {
+                TempData["Error"] = "Đơn hàng đã kết thúc, không thể thay đổi trạng thái!";
+                return RedirectToAction("Details", new { id });
+            }
+
+            // ★ Trừ kho khi chuyển sang "Hoàn thành"
+            if (status == "Hoàn thành")
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    var product = detail.Product;
+                    if (product == null) continue;
+
+                    int qty = detail.Quantity ?? 0;
+                    if (product.Stock < qty)
+                    {
+                        TempData["Error"] = $"Sản phẩm {product.Name} không đủ hàng! Còn {product.Stock}; cần {qty}.";
+                        return RedirectToAction("Details", new { id });
+                    }
+
+                    product.Stock -= qty;
+                }
+            }
 
             order.Status = status;
             db.SaveChanges();
 
-            TempData["Success"] = "Cập nhật trạng thái đơn hàng #" + id + " thành công!";
-            return RedirectToAction("Details", new { id = id });
+            TempData["Success"] = status == "Hoàn thành"
+                ? $"Đơn #{id} hoàn thành — đã trừ tồn kho!"
+                : $"Cập nhật trạng thái đơn #{id} thành công!";
+
+            return RedirectToAction("Details", new { id });
         }
 
         // ───────────────────────────────────────────

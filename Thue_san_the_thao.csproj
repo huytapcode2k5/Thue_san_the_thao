@@ -131,15 +131,26 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\BookingSanController.cs" />
     <Compile Include="Areas\Admin\Controllers\CategoryController.cs" />
+    <Compile Include="Areas\Admin\Controllers\FacilityController.cs" />
+    <Compile Include="Areas\Admin\Controllers\FieldController.cs" />
     <Compile Include="Areas\Admin\Controllers\HomeAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\OrderController.cs" />
+    <Compile Include="Areas\Admin\Controllers\PriceController.cs" />
     <Compile Include="Areas\Admin\Controllers\ProductController.cs" />
     <Compile Include="Areas\Admin\Controllers\ProfileController.cs" />
+    <Compile Include="Areas\Admin\Controllers\RevenueController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UserController.cs" />
+    <Compile Include="Areas\Admin\Data\TopFieldVM.cs" />
+    <Compile Include="Areas\Admin\Data\TopProductVM.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Areas\Admin\Data\Category.cs" />
+    <Compile Include="Controllers\BookingController.cs" />
+    <Compile Include="Controllers\CartController.cs" />
     <Compile Include="Controllers\HistoryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -278,6 +289,21 @@
     <Content Include="Areas\Admin\Views\Order\Index.cshtml" />
     <Content Include="Areas\Admin\Views\Order\Details.cshtml" />
     <Content Include="Areas\Admin\Views\Profile\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Revenue\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Facility\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Facility\Create.cshtml" />
+    <Content Include="Areas\Admin\Views\Facility\Edit.cshtml" />
+    <Content Include="Areas\Admin\Views\Field\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Field\Create.cshtml" />
+    <Content Include="Areas\Admin\Views\Field\Edit.cshtml" />
+    <Content Include="Areas\Admin\Views\User\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\User\Create.cshtml" />
+    <Content Include="Areas\Admin\Views\User\Edit.cshtml" />
+    <Content Include="Areas\Admin\Views\Price\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Price\Create.cshtml" />
+    <Content Include="Areas\Admin\Views\Price\Edit.cshtml" />
+    <Content Include="Areas\Admin\Views\BookingSan\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\BookingSan\Details.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -306,6 +332,14 @@
     <Content Include="Views\History\Index.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
     <Content Include="Views\Account\ResetPassword.cshtml" />
+    <Content Include="Views\Cart\PaymentQR.cshtml" />
+    <Content Include="Views\Cart\Index.cshtml" />
+    <Content Include="Views\Cart\Checkout.cshtml" />
+    <Content Include="Views\Shop\Index.cshtml" />
+    <Content Include="Views\Booking\Index.cshtml" />
+    <Content Include="Views\Booking\DatSan.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Booking\BookingPaymentQR.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

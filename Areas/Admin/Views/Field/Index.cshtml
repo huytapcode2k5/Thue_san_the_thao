@@ -1,0 +1,322 @@
+﻿@model IEnumerable<Thue_san_the_thao.Models.Data.Field>
+
+@{
+    ViewBag.Title = "Quản lý sân";
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+}
+
+<style>
+    /* ===== GLOBAL ===== */
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    }
+
+    /* ===== HEADER ===== */
+    .page-header {
+        display: flex;
+        /*        justify-content: space-between;*/
+        justify-content: flex-end;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white;
+        box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(99,102,241,0.4);
+        }
+
+    .btn-outline {
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        background: white;
+    }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+
+    .btn-danger {
+        background: #ef4444;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 13px;
+    }
+
+    /* ===== FILTER BAR ===== */
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+        .filter-bar label {
+            font-weight: 600;
+            color: #334155;
+        }
+
+    .filter-divider {
+        width: 1px;
+        height: 25px;
+        background: #e2e8f0;
+    }
+
+    /* input */
+    .form-control {
+        padding: 6px 8px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        transition: 0.2s;
+    }
+
+        .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+            outline: none;
+        }
+
+    /* ===== CARD ===== */
+    .card {
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 14px;
+        padding: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    /* ===== TABLE ===== */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .data-table thead {
+            background: #f1f5f9;
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-top: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+            transition: 0.2s;
+        }
+
+    /* ===== IMAGE ===== */
+    .product-img {
+        width: 55px;
+        height: 55px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #eee;
+    }
+
+    .product-img-placeholder {
+        width: 55px;
+        height: 55px;
+        background: #f1f5f9;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    /* ===== PRODUCT NAME ===== */
+    .product-name {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    /* ===== PRICE ===== */
+    .price-tag {
+        background: #ecfdf5;
+        color: #059669;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    /* ===== CATEGORY BADGE ===== */
+    .category-badge {
+        background: #e0e7ff;
+        color: #4338ca;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+    /* ===== DATE ===== */
+    .date-text {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    /* ===== ACTION ===== */
+    .action-cell {
+        text-align: center;
+    }
+
+        .action-cell .btn {
+            margin: 0 3px;
+        }
+
+    /* ===== ALERT ===== */
+    .alert {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    .alert-success {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    /* ===== EMPTY ===== */
+    .empty-state {
+        text-align: center;
+        padding: 20px;
+        color: #94a3b8;
+        font-style: italic;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @@media (max-width: 768px) {
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-divider {
+            display: none;
+        }
+    }
+</style>
+<div class="page-header">
+    <a href="@Url.Action("Index", "Price")" class="btn btn-primary">+ Thêm giá tiền</a>
+    <a href="@Url.Action("Create", "Field")" class="btn btn-primary">+ Thêm sân</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form method="get" class="filter-bar">
+    <label>Tên:</label>
+    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm kiếm..." />
+    <div class="filter-divider"></div>
+    <label>Danh mục:</label>
+    @Html.DropDownList("FacilityID", ViewBag.FacilityID as SelectList, "Tất cả", new { @class = "form-control" })
+    <button type="submit" class="btn btn-primary">Lọc</button>
+</form>
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width:50px">ID</th>
+                <th style="width:72px">Ảnh</th>
+                <th>Tên sân</th>
+                @*<th>Giá</th>*@
+                <th>Cơ sở</th>
+                <th>Ngày thêm</th>
+                <th style="width:150px; text-align:center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7" class="empty-state">Không có sân nào.</td>
+                </tr>
+            }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-muted">@item.FieldID</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Image))
+                        {
+                            <img src="@Url.Content("~/Images/field/" + item.Image)" class="product-img" />
+                        }
+                        else
+                        {
+                            <div class="product-img-placeholder">No img</div>
+                        }
+                    </td>
+                    <td>
+                        <div class="product-name">@item.FieldName</div>
+                    </td>
+                    @*<td>
+                            <span class="price-tag">@String.Format("{0:N0}đ", item.Prices)</span>
+                        </td>*@
+                    <td>
+                        <span class="category-badge">@(item.Facility != null ? item.Facility.FacilityName : "Chưa phân loại")</span>
+                    </td>
+                    <td>
+                        <span class="date-text">@String.Format("{0:dd/MM/yyyy}", item.FieldDate)</span>
+                    </td>
+
+                    <td class="action-cell">
+                        <a href="@Url.Action("Edit", "Field", new { id = item.FieldID })" class="btn btn-sm btn-outline">Sửa</a>
+                        <a href="@Url.Action("Delete", "Field", new { id = item.FieldID })"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Bạn có chắc muốn xóa sân này không?')">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+

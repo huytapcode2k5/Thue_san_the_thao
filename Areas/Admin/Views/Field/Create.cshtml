@@ -1,0 +1,150 @@
+﻿@{
+    ViewBag.Title = "Thêm sân";
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+}
+
+@model Thue_san_the_thao.Models.Data.Field
+
+
+<style>
+    /* ===== FORM CARD ===== */
+    .form-card {
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(12px);
+        padding: 30px;
+        border-radius: 16px;
+        max-width: 100%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: end;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    /* ===== GROUP ===== */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: block;
+        color: #334155;
+    }
+
+    /* ===== INPUT ===== */
+    .form-control {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        transition: 0.25s;
+    }
+
+        .form-control:focus {
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+            outline: none;
+        }
+
+    textarea.form-control {
+        resize: none;
+        min-height: 80px;
+    }
+    /* ===== FILE INPUT ===== */
+    .file-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 10px;
+        background: #f8fafc;
+        cursor: pointer;
+    }
+
+        .file-input:hover {
+            background: #eef2ff;
+        }
+
+
+    /* ===== BUTTON ===== */
+    .btn {
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white;
+        box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+
+    .btn-outline {
+        border: 1px solid #4e73df;
+        color: #4e73df;
+        background: transparent;
+    }
+
+        .btn-outline:hover {
+            background-color: #4e73df;
+            color: white;
+        }
+    /* ===== ACTION ===== */
+    .form-actions {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="page-header">
+    <a href="@Url.Action("Index", "Field", new { area = "Admin" })" class="btn btn-outline">← Quay lại</a>
+</div>
+<div class="form-card">
+    @using (Html.BeginForm("Create", "Field", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <label class="form-label">Tên sân</label>
+            @Html.TextBoxFor(m => m.FieldName, new { @class = "form-control", placeholder = "Nhập tên sân..." })
+        </div>
+        <div class="form-group">
+            <label class="form-label">Cơ sở</label>
+            @Html.DropDownListFor(m => m.FacilityID,
+                     ViewBag.FacilityID as SelectList,
+                     "-- Chọn cơ sở --",
+                     new { @class = "form-control" })
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Kiểu sân</label>
+            @Html.TextBoxFor(m => m.Type, new { @class = "form-control", placeholder = "Nhập kiểu sân..." })
+        </div>
+        <div class="form-group">
+            <label class="form-label">Trạng thái</label>
+            @Html.TextBoxFor(m => m.Status, new { @class = "form-control", placeholder = "Nhập trạng thái..." })
+        </div>
+
+
+        <div class="form-group">
+            <label class="form-label">Ảnh sân</label>
+            <input type="file" name="Image" class="file-input" />
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Lưu</button>
+
+        </div>
+    }
+</div>
+
+
+

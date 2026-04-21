@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Mvc;
+using System.Data.Entity;
 using System.Web.Security;
 using Thue_san_the_thao.Models.Data;
 
@@ -205,6 +208,76 @@ namespace Thue_san_the_thao.Controllers
 
             TempData["ResetSuccess"] = "Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.";
             return RedirectToAction("Login");
+        }
+        public ActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Register(User model, string ConfirmPassword)
+        {
+            if (string.IsNullOrWhiteSpace(model.FullName) || model.FullName.Trim().Length < 2)
+                ModelState.AddModelError("FullName", "Họ tên không hợp lệ (tối thiểu 2 ký tự)");
+
+            if (string.IsNullOrWhiteSpace(model.Email))
+                ModelState.AddModelError("Email", "Vui lòng nhập email");
+            else if (!Regex.IsMatch(model.Email.Trim(), @"^[^\s@]+@[^\s@]+\.[^\s@]+$"))
+                ModelState.AddModelError("Email", "Email không hợp lệ");
+
+            if (string.IsNullOrWhiteSpace(model.Phone))
+                ModelState.AddModelError("Phone", "Vui lòng nhập số điện thoại");
+            else if (!Regex.IsMatch(model.Phone.Trim(), @"^\d{10}$"))
+                ModelState.AddModelError("Phone", "SĐT phải đúng 10 chữ số");
+
+            if (string.IsNullOrEmpty(model.PasswordHash) || model.PasswordHash.Length < 6)
+                ModelState.AddModelError("PasswordHash", "Mật khẩu tối thiểu 6 ký tự");
+            else if (model.PasswordHash != ConfirmPassword)
+                ModelState.AddModelError("ConfirmPassword", "Mật khẩu không khớp");
+
+            if (!ModelState.IsValid)
+            {
+                var formData = new User
+                {
+                    FullName = model.FullName,
+                    Email = model.Email,
+                    Phone = model.Phone
+                };
+                return View(formData);
+            }
+
+            if (db.Users.Any(x => x.Email == model.Email.Trim()))
+            {
+                ViewBag.Error = "Email này đã được đăng ký";
+                var formData = new User
+                {
+                    FullName = model.FullName,
+                    Email = model.Email,
+                    Phone = model.Phone
+                };
+                return View(formData);
+            }
+
+            // ✅ Tạo object mới hoàn toàn để lưu — tránh EF dùng object cũ đã bị track
+            var newUser = new User
+            {
+                FullName = model.FullName.Trim(),
+                Email = model.Email.Trim(),
+                Phone = model.Phone.Trim(),
+                PasswordHash = model.PasswordHash,
+                Status = true,
+                CreatedAt = DateTime.Now
+            };
+
+            var role = db.Roles.FirstOrDefault(r => r.RoleName == "User");
+            if (role != null)
+                newUser.RoleID = role.RoleID;
+
+            db.Users.Add(newUser);
+            db.SaveChanges();
+
+            TempData["Success"] = "Đăng ký thành công!";
+            return RedirectToAction("Register");
         }
     }
 }

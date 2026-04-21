@@ -1,0 +1,437 @@
+﻿@model IEnumerable<Thue_san_the_thao.Models.Data.Product>
+@{
+    ViewBag.Title = "Sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as IEnumerable<Thue_san_the_thao.Models.Data.Category>;
+}
+
+<div class="shop-wrapper">
+
+    <!-- HEADER -->
+    <div class="shop-header">
+        <div class="shop-header__label">Cửa hàng</div>
+        <h1 class="shop-header__title">Sản phẩm thể thao</h1>
+        <p class="shop-header__sub">Trang bị đầy đủ dụng cụ để thi đấu tốt nhất</p>
+    </div>
+
+    <!-- FILTER -->
+    <div class="filter-bar">
+        <button class="chip active" onclick="filterCat(0, this)">Tất cả</button>
+        @if (categories != null)
+        {
+            foreach (var cat in categories.GroupBy(c => c.Name).Select(g => g.First()))
+            {
+                <button class="chip" onclick="filterCat(@cat.CategoryID, this)">@cat.Name</button>
+            }
+        }
+    </div>
+
+    <!-- GRID -->
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state">Chưa có sản phẩm nào.</div>
+    }
+    else
+    {
+        <div class="product-grid" id="productGrid">
+            @foreach (var p in Model)
+            {
+                <div class="product-item" data-cat="@p.CategoryID">
+                    <div class="pcard">
+                        <div class="pcard__img-wrap">
+                            <img src="@Url.Content("~/Images/" + p.Image)"
+                                 onerror="this.onerror=null;this.src='https://placehold.co/300x200?text=No+Image'"
+                                 alt="@p.Name" />
+                            @if (p.Stock <= 0)
+                            {
+                                <span class="pcard__badge-out">Hết hàng</span>
+                            }
+                            else
+                            {
+                                <span class="pcard__badge-stock">Còn @p.Stock</span>
+                            }
+                        </div>
+                        <div class="pcard__body">
+                            <p class="pcard__name">@p.Name</p>
+                            <p class="pcard__desc">@p.Description</p>
+                            <div class="pcard__footer">
+                                <span class="pcard__price">@String.Format("{0:N0}", p.Price)đ</span>
+                                @if (p.Stock > 0)
+                                {
+                                    <button class="pcard__btn" onclick="addToCart(@p.ProductID, this)">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
+                                        Thêm vào giỏ
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="pcard__btn pcard__btn--disabled" disabled>Hết hàng</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function filterCat(catId, btn) {
+        document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const grid = document.getElementById("productGrid");
+        if (!grid) return;
+
+        grid.style.opacity = 0;
+        grid.style.transform = "translateY(10px)";
+
+        setTimeout(function () {
+            document.querySelectorAll(".product-item").forEach(item => {
+                const show = catId === 0 || parseInt(item.getAttribute("data-cat")) === catId;
+                item.style.display = show ? "" : "none";
+            });
+            grid.style.transition = "opacity 0.28s ease, transform 0.28s ease";
+            grid.style.opacity = 1;
+            grid.style.transform = "translateY(0)";
+        }, 160);
+    }
+
+    function addToCart(productId, btn) {
+        const origHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = "Đang thêm…";
+
+        $.ajax({
+            url: '/Shop/AddToCart',
+            type: 'POST',
+            data: { productId: productId, quantity: 1 },
+            success: function (res) {
+                if (res.success) {
+                    btn.innerHTML = "✓ Đã thêm!";
+                    btn.classList.add("pcard__btn--added");
+
+                    const badge = document.querySelector(".cart-badge");
+                    if (badge) { badge.innerText = res.cartCount; badge.style.display = "flex"; }
+                    else {
+                        const cartBtn = document.querySelector(".btn-cart");
+                        if (cartBtn) {
+                            const nb = document.createElement("span");
+                            nb.className = "cart-badge";
+                            nb.innerText = res.cartCount;
+                            cartBtn.appendChild(nb);
+                        }
+                    }
+
+                    setTimeout(function () {
+                        btn.innerHTML = origHTML;
+                        btn.disabled = false;
+                        btn.classList.remove("pcard__btn--added");
+                    }, 1600);
+                } else {
+                    alert(res.message);
+                    btn.innerHTML = origHTML;
+                    btn.disabled = false;
+                }
+            },
+            error: function () {
+                alert("Có lỗi xảy ra, vui lòng thử lại!");
+                btn.innerHTML = origHTML;
+                btn.disabled = false;
+            }
+        });
+    }</script>
+
+<style>
+    :root {
+        --green-dark: #0f5c35;
+        --green-mid: #1a7a4a;
+        --green-light: #00c853;
+        --green-pale: #e8f5e9;
+        --gold: #f5d478;
+        --text-main: #0d1f16;
+        --text-muted: #6b7c72;
+        --radius-card: 18px;
+        --shadow-soft: 0 4px 24px rgba(0,0,0,0.07);
+        --shadow-lift: 0 14px 40px rgba(0,0,0,0.13);
+    }
+
+    /* ── WRAPPER ── */
+    .shop-wrapper {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0 16px 80px;
+    }
+
+    /* ── HEADER ── */
+    .shop-header {
+        text-align: center;
+        padding: 48px 0 36px;
+    }
+
+    .shop-header__label {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--green-mid);
+        background: var(--green-pale);
+        padding: 4px 14px;
+        border-radius: 100px;
+        margin-bottom: 12px;
+    }
+
+    .shop-header__title {
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0 0 8px;
+        letter-spacing: -0.4px;
+    }
+
+    .shop-header__sub {
+        color: var(--text-muted);
+        font-size: 14.5px;
+        margin: 0;
+    }
+
+    /* ── FILTER CHIPS ── */
+    .filter-bar {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 40px;
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 22px;
+        border-radius: 100px;
+        border: 1.5px solid #d5e8da;
+        background: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .chip:hover {
+            border-color: var(--green-mid);
+            color: var(--green-mid);
+            transform: translateY(-2px);
+        }
+
+        .chip.active {
+            background: var(--green-mid);
+            border-color: var(--green-mid);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(26,122,74,0.28);
+        }
+
+    /* ── PRODUCT GRID ── */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 22px;
+        transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+
+    /* ── PRODUCT CARD ── */
+    .pcard {
+        background: #fff;
+        border-radius: var(--radius-card);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+        .pcard:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lift);
+        }
+
+    /* image */
+    .pcard__img-wrap {
+        position: relative;
+        height: 195px;
+        overflow: hidden;
+        background: #f5f5f5;
+        flex-shrink: 0;
+    }
+
+        .pcard__img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.45s ease;
+        }
+
+    .pcard:hover .pcard__img-wrap img {
+        transform: scale(1.08);
+    }
+
+    /* badges */
+    .pcard__badge-out,
+    .pcard__badge-stock {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 4px 11px;
+        border-radius: 100px;
+        letter-spacing: 0.3px;
+    }
+
+    .pcard__badge-out {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .pcard__badge-stock {
+        background: rgba(15,92,53,0.82);
+        color: #fff;
+        backdrop-filter: blur(4px);
+    }
+
+    /* body */
+    .pcard__body {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        gap: 0;
+    }
+
+    .pcard__name {
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--text-main);
+        margin: 0 0 6px;
+        line-height: 1.45;
+        min-height: 2.9em;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .pcard__desc {
+        font-size: 12.5px;
+        color: #9ca3af;
+        margin: 0;
+        flex: 1;
+        min-height: 3.75em;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.5;
+    }
+
+    /* footer row */
+    .pcard__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: auto;
+        padding-top: 10px;
+        border-top: 1px solid #f3f4f6;
+        flex-wrap: nowrap;
+        flex-shrink: 0;
+    }
+
+    .pcard__price {
+        font-weight: 800;
+        font-size: 16px;
+        color: var(--green-mid);
+        white-space: nowrap;
+    }
+
+    /* add-to-cart button */
+    .pcard__btn {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: var(--green-pale) !important;
+        color: var(--green-dark) !important;
+        border: 1.5px solid #a5d6a7 !important;
+        border-radius: 100px;
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+        .pcard__btn:hover {
+            background: var(--green-mid) !important;
+            color: #fff !important;
+            border-color: var(--green-mid) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(26,122,74,0.25);
+        }
+
+    .pcard__btn--added {
+        background: var(--green-mid) !important;
+        color: #fff !important;
+        border-color: var(--green-mid) !important;
+    }
+
+    .pcard__btn--disabled {
+        background: #f5f5f5 !important;
+        color: #bbb !important;
+        border-color: #e5e7eb !important;
+        cursor: not-allowed;
+    }
+
+    /* ── EMPTY ── */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+        font-size: 15px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 600px) {
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .pcard__img-wrap {
+            height: 155px;
+        }
+
+        .pcard__footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .pcard__btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @@media (max-width: 360px) {
+        .product-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

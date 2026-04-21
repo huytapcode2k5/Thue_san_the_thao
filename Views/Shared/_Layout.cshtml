@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="~/Images/logo.jpg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - Thuê Sân Thể Thao</title>
 
@@ -85,8 +86,8 @@
             }
 
             .nav-brand .brand-icon {
-                width: 36px;
-                height: 36px;
+                width: 1px;
+                height: 1px;
                 background: rgba(255,255,255,0.2);
                 border-radius: 10px;
                 display: flex;
@@ -561,12 +562,12 @@
 
             <!-- Brand -->
             <a class="nav-brand" href="/Home/Trangchu">
-                <span class="brand-icon">🏟️</span>
-                <span>
-                    Thuê Sân
-                    <span class="brand-sub">Thể Thao</span>
-                </span>
-            </a>
+    <img src="~/Images/logo.jpg" alt="H2D Sport" style="width:44px; height:44px; border-radius:50%; object-fit:cover;" />
+    <span>
+        Thuê Sân
+        <span class="brand-sub">Thể Thao</span>
+    </span>
+</a>
 
             <!-- Toggler (mobile) -->
             <button class="nav-toggler" id="navToggler" aria-label="Menu">
@@ -582,10 +583,10 @@
                         <a class="nav-link" href="/Home/Trangchu"><i class="fas fa-home"></i> Trang chủ</a>
                     </li>
                     <li>
-                        <a class="nav-link" href="/Booking"><i class="fas fa-calendar-check"></i> Đặt sân</a>
+                        <a class="nav-link" href="/Booking/DatSan"><i class="fas fa-calendar-check"></i> Đặt sân</a>
                     </li>
                     <li>
-                        <a class="nav-link" href="/Product"><i class="fas fa-store"></i> Sản phẩm</a>
+                        <a class="nav-link" href="/Shop"><i class="fas fa-store"></i> Sản phẩm</a>
                     </li>
                     <li>
                         <a class="nav-link" href="/History"><i class="fas fa-clock-rotate-left"></i> Lịch sử</a>
@@ -628,11 +629,11 @@
                                     </a>
                                 </li>
 
-                                <li>
-                                    <a class="dropdown-item" href="/Order">
+                                @*<li>
+                                    <a class="dropdown-item" href="/History/Oder">
                                         <i class="fas fa-box"></i> Đơn hàng
                                     </a>
-                                </li>
+                                </li>*@
                                 <li><hr class="dropdown-divider" /></li>
                                 <li>
                                     <a class="dropdown-item logout" href="/Account/Logout">

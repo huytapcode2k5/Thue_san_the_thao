@@ -1,0 +1,201 @@
+﻿
+@model IEnumerable<Thue_san_the_thao.Models.Data.Price>
+@{
+    ViewBag.Title = "Quản lý giá cả";
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+}
+
+
+<style>
+    /* ===== RESET NHẸ ===== */
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background-color: #f5f6fa;
+        margin: 0;
+        padding: 20px;
+    }
+
+    /* ===== HEADER ===== */
+    .page-header {
+        display: flex;
+        justify-content: end;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn {
+        padding: 8px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: 0.2s;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background-color: #4e73df;
+        color: #fff;
+    }
+
+        .btn-primary:hover {
+            background-color: #2e59d9;
+        }
+
+    /* small button */
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 13px;
+    }
+
+    /* outline button */
+    .btn-outline {
+        border: 1px solid #4e73df;
+        color: #4e73df;
+        background: transparent;
+    }
+
+        .btn-outline:hover {
+            background-color: #4e73df;
+            color: white;
+        }
+
+    /* danger button */
+    .btn-danger {
+        background-color: #e74a3b;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+    /* ===== CARD ===== */
+    .card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    /* ===== TABLE ===== */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .data-table thead {
+            background-color: #f1f3f9;
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        /* hover row */
+        .data-table tbody tr:hover {
+            background-color: #f9fafc;
+        }
+
+    /* ===== TEXT ===== */
+    .text-muted {
+        color: #888;
+    }
+
+    /* ===== ACTION CELL ===== */
+    .action-cell {
+        text-align: center;
+    }
+
+        .action-cell .btn {
+            margin: 0 3px;
+        }
+
+    /* ===== ALERT ===== */
+    .alert {
+        padding: 10px 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+
+    .alert-success {
+        background-color: #e6f4ea;
+        color: #2e7d32;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+        text-align: center;
+        color: #999;
+        padding: 20px;
+        font-style: italic;
+    }
+</style>
+
+<div class="page-header">
+    <a href="@Url.Action("Create", "Price")" class="btn btn-primary">
+        + Thêm giá tiền
+    </a>
+    <a href="@Url.Action("Index", "Field")" class="btn btn-outline">← Quay lại</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 60px">ID</th>
+                <th>Giá</th>
+                <th>Thời gian</th>
+                <th style="width: 160px; text-align:center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="4" class="empty-state">Chưa có mức giá nào.</td>
+                </tr>
+            }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-muted">@item.PriceID</td>
+                    <td>@item.Price1</td>
+                    <td>
+                        @(item.TimeSlot != null
+                            ? item.TimeSlot.StartTime + " - " + item.TimeSlot.EndTime
+                            : "Không có")
+                    </td>
+                    <td class="action-cell">
+                        <a href="@Url.Action("Edit", "Price", new { id = item.PriceID })" class="btn btn-sm btn-outline">Sửa</a>
+                        <a href="@Url.Action("Delete", "Price", new { id = item.PriceID })"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Bạn có chắc muốn xóa không?')">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

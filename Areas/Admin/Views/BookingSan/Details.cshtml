@@ -1,0 +1,503 @@
+﻿@model Thue_san_the_thao.Models.Data.Booking
+
+@{
+    ViewBag.Title = "Chi tiết đơn đặt sân #" + Model.BookingID;
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+    var price = ViewBag.Price as Thue_san_the_thao.Models.Data.Price;
+}
+
+<style>
+    .btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all .25s ease;
+        cursor: pointer;
+        border: none;
+        display: inline-block;
+    }
+
+    .btn-outline {
+        border: 1px solid #4e73df;
+        color: #4e73df;
+        background: transparent;
+    }
+
+        .btn-outline:hover {
+            background: #4e73df;
+            color: #fff;
+        }
+
+    .btn-success {
+        background: #16a34a;
+        color: #fff;
+    }
+
+        .btn-success:hover {
+            background: #15803d;
+            color: #fff;
+        }
+
+    .btn-danger {
+        background: #dc2626;
+        color: #fff;
+    }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            color: #fff;
+        }
+
+    .page-header {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 18px;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    @@media(max-width:768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .info-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.07);
+    }
+
+        .info-card h5 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #334155;
+            border-bottom: 2px solid #e0e7ff;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .info-label {
+        color: #64748b;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #1e293b;
+        text-align: right;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .badge-confirmed {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .badge-cancelled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .badge-done {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .badge-default {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .products-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.07);
+        margin-bottom: 24px;
+    }
+
+        .products-card h5 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #334155;
+            border-bottom: 2px solid #e0e7ff;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+    .field-info-box {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #e0e7ff;
+    }
+
+    .field-img {
+        width: 72px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #eee;
+        flex-shrink: 0;
+    }
+
+    .field-img-placeholder {
+        width: 72px;
+        height: 72px;
+        background: #e0e7ff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+
+    .field-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .field-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .field-sub {
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    /* Bảng Orders (nếu có thêm thông tin trong Order) */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .data-table thead {
+            background: #f1f5f9;
+        }
+
+        .data-table th {
+            padding: 11px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .data-table td {
+            padding: 11px 12px;
+            border-top: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+    .amount-text {
+        font-weight: 700;
+        color: #059669;
+    }
+
+    .price-highlight {
+        font-weight: 700;
+        color: #dc2626;
+    }
+
+    .status-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.07);
+    }
+
+        .status-card h5 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #334155;
+            border-bottom: 2px solid #e0e7ff;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+    .status-select {
+        padding: 9px 12px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        font-size: 14px;
+        width: 100%;
+        margin-bottom: 12px;
+        transition: .2s;
+    }
+
+        .status-select:focus {
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+        }
+
+    .alert {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+
+    .alert-success {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+
+    .delete-row {
+        margin-top: 16px;
+        text-align: right;
+    }
+</style>
+
+<div class="page-header">
+    <a href="@Url.Action("Index", "BookingSan")" class="btn btn-outline">← Quay lại danh sách</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@{
+    string badgeClass = "badge-default";
+    switch ((Model.Status ?? "").ToLower())
+    {
+        case "pending": badgeClass = "badge-pending"; break;
+        case "confirmed": badgeClass = "badge-confirmed"; break;
+        case "cancelled": badgeClass = "badge-cancelled"; break;
+        case "hoàn thành": badgeClass = "badge-done"; break;
+    }
+
+    string thoiGian = "—";
+    if (Model.TimeSlot != null
+        && Model.TimeSlot.StartTime.HasValue
+        && Model.TimeSlot.EndTime.HasValue)
+    {
+        thoiGian = Model.TimeSlot.StartTime.Value.Hours.ToString("D2") + ":"
+                 + Model.TimeSlot.StartTime.Value.Minutes.ToString("D2")
+                 + " - "
+                 + Model.TimeSlot.EndTime.Value.Hours.ToString("D2") + ":"
+                 + Model.TimeSlot.EndTime.Value.Minutes.ToString("D2");
+    }
+}
+
+<!-- Thông tin đặt sân + Khách hàng -->
+<div class="detail-grid">
+
+    <!-- Thông tin đặt sân -->
+    <div class="info-card">
+        <h5>🏟️ Thông tin đặt sân</h5>
+        <div class="info-row">
+            <span class="info-label">Mã đơn</span>
+            <span class="info-value">#@Model.BookingID</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Ngày đặt</span>
+            <span class="info-value">
+                @(Model.BookingDate.HasValue ? Model.BookingDate.Value.ToString("dd/MM/yyyy") : "—")
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Ngày tạo</span>
+            <span class="info-value">
+                @(Model.CreatedAt.HasValue ? Model.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "—")
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Khung giờ</span>
+            <span class="info-value">@thoiGian</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Giá thuê</span>
+            <span class="info-value">
+                @if (price != null && price.Price1.HasValue)
+                {
+                    <span class="price-highlight">@String.Format("{0:N0}đ", price.Price1.Value)</span>
+                }
+                else
+                {
+                    <span style="color:#94a3b8; font-style:italic; font-weight:400">Chưa có giá</span>
+                }
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Trạng thái</span>
+            <span class="info-value">
+                <span class="badge @badgeClass">@(Model.Status ?? "—")</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Thông tin khách hàng -->
+    <div class="info-card">
+        <h5>👤 Khách hàng</h5>
+        @if (Model.User != null)
+        {
+            <div class="info-row">
+                <span class="info-label">Họ tên</span>
+                <span class="info-value">@Model.User.FullName</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">@Model.User.Email</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Số điện thoại</span>
+                <span class="info-value">
+                    @(string.IsNullOrEmpty(Model.User.Phone) ? "—" : Model.User.Phone)
+                </span>
+            </div>
+        }
+        else
+        {
+            <p style="color:#94a3b8; font-style:italic">Không tìm thấy thông tin khách hàng.</p>
+        }
+    </div>
+</div>
+
+<!-- Thông tin sân (lấy từ Booking.Field, không phải Order.Field) -->
+<div class="products-card">
+    <h5>🏟️ Sân được đặt</h5>
+
+    @if (Model.Field != null)
+    {
+        <div class="field-info-box">
+            @if (!string.IsNullOrEmpty(Model.Field.Image))
+            {
+                <img src="/Images/field/@Model.Field.Image" class="field-img" alt="@Model.Field.FieldName" />
+            }
+            else
+            {
+                <div class="field-img-placeholder">No img</div>
+            }
+            <div class="field-meta">
+                <span class="field-name">@Model.Field.FieldName</span>
+                @if (Model.Field.Facility != null)
+                {
+                    <span class="field-sub">🏢 Cơ sở: @Model.Field.Facility.FacilityName</span>
+                }
+                @if (!string.IsNullOrEmpty(Model.Field.FieldName))
+                {
+                    <span class="field-sub">⚽ Loại: @Model.Field.FieldName</span>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <p style="color:#94a3b8; font-style:italic; text-align:center; padding:16px 0">
+            Không có thông tin sân.
+        </p>
+    }
+
+
+    @*@if (Model.Orders != null && Model.Orders.Any())*@
+</div>
+
+<!-- Thông tin ghi nhận doanh thu (Order) -->
+@if (Model.Orders != null && Model.Orders.Any())
+{
+    var order = Model.Orders.FirstOrDefault();
+    <div class="products-card" style="border-left: 4px solid #16a34a;">
+        <h5>💰 Doanh thu đã ghi nhận</h5>
+        <div class="field-info-box" style="background:#f0fdf4; border-color:#bbf7d0;">
+            <div class="field-meta" style="gap:8px; width:100%">
+                <div class="info-row">
+                    <span class="info-label">Mã Order</span>
+                    <span class="info-value">#@order.OrderID</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Ngày ghi nhận</span>
+                    <span class="info-value">
+                        @(order.OrderDate.HasValue ? order.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "—")
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Số tiền</span>
+                    <span class="info-value price-highlight">
+                        @String.Format("{0:N0}đ", order.TotalAmount ?? 0)
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Trạng thái</span>
+                    <span class="info-value">
+                        <span class="badge badge-done">@order.Status</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Cập nhật trạng thái -->
+<div class="status-card">
+    <h5>🔄 Cập nhật trạng thái đơn đặt sân</h5>
+    @using (Html.BeginForm("UpdateStatus", "BookingSan", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.BookingID" />
+        <select name="status" class="status-select">
+            @foreach (var s in new[] { "Pending", "Confirmed", "Cancelled", "Hoàn thành" })
+            {
+                if (Model.Status == s)
+                {
+                    <option value="@s" selected="selected">@s</option>
+                }
+                else
+                {
+                    <option value="@s">@s</option>
+                }
+            }
+        </select>
+        <button type="submit" class="btn btn-success">💾 Lưu trạng thái</button>
+    }
+</div>
+
+<!-- Xóa đơn -->
+<div class="delete-row">
+    <a href="@Url.Action("Delete", "BookingSan", new { id = Model.BookingID })"
+       class="btn btn-danger"
+       onclick="return confirm('Bạn có chắc muốn xóa đơn #@Model.BookingID không?')">
+        🗑️ Xóa đơn này
+    </a>
+</div>

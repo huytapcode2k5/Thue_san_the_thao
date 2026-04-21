@@ -57,12 +57,18 @@
 
     .detail-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 20px;
         margin-bottom: 24px;
     }
 
-    @@media(max-width:768px) {
+    @@media(max-width:900px) {
+        .detail-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @@media(max-width:600px) {
         .detail-grid {
             grid-template-columns: 1fr;
         }
@@ -258,6 +264,48 @@
         color: #059669;
         border: 1px solid #a7f3d0;
     }
+
+    .alert-danger {
+        background: #fff5f5;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .addr-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        align-items: flex-start;
+    }
+
+        .addr-row i {
+            color: #00CC33;
+            width: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+    .addr-label {
+        width: 120px;
+        color: #64748b;
+        flex-shrink: 0;
+    }
+
+    .addr-value {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .warn-box {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 12px;
+        color: #92400e;
+        margin-top: 12px;
+    }
 </style>
 
 <div class="page-header">
@@ -266,7 +314,11 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="alert alert-success">✅ @TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">⚠️ @TempData["Error"]</div>
 }
 
 @{
@@ -334,6 +386,33 @@
             <p style="color:#94a3b8; font-style:italic">Khách vãng lai (không có tài khoản)</p>
         }
     </div>
+
+    <!-- Địa chỉ giao hàng -->
+    <div class="info-card">
+        <h5>📍 Địa chỉ giao hàng</h5>
+        <div class="addr-row">
+            <i class="fas fa-user"></i>
+            <span class="addr-label">Người nhận</span>
+            <span class="addr-value">@(string.IsNullOrEmpty(Model.ReceiverName) ? "—" : Model.ReceiverName)</span>
+        </div>
+        <div class="addr-row">
+            <i class="fas fa-phone"></i>
+            <span class="addr-label">Số điện thoại</span>
+            <span class="addr-value">@(string.IsNullOrEmpty(Model.ReceiverPhone) ? "—" : Model.ReceiverPhone)</span>
+        </div>
+        <div class="addr-row">
+            <i class="fas fa-location-dot"></i>
+            <span class="addr-label">Địa chỉ</span>
+            <span class="addr-value">@(string.IsNullOrEmpty(Model.ShippingAddress) ? "—" : Model.ShippingAddress)</span>
+        </div>
+        <div class="addr-row">
+            <i class="fas fa-note-sticky"></i>
+            <span class="addr-label">Ghi chú</span>
+            <span class="addr-value" style="font-weight:400;color:#64748b">
+                @(string.IsNullOrEmpty(Model.ShippingNote) ? "Không có" : Model.ShippingNote)
+            </span>
+        </div>
+    </div>
 </div>
 
 <!-- Danh sách sản phẩm -->
@@ -392,23 +471,62 @@
 <!-- Cập nhật trạng thái -->
 <div class="status-card">
     <h5>🔄 Cập nhật trạng thái đơn hàng</h5>
-    @using (Html.BeginForm("UpdateStatus", "Order", FormMethod.Post))
+
+    @if (Model.Status == "Hoàn thành")
     {
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="id" value="@Model.OrderID" />
-        <select name="status" class="status-select">
-            @foreach (var s in new[] { "Chờ xác nhận", "Đã xác nhận", "Đang giao", "Hoàn thành", "Đã hủy" })
+        <div class="alert alert-success" style="margin-bottom:0">
+            ✅ Đơn hàng đã hoàn thành — tồn kho đã được trừ.
+        </div>
+    }
+    else if (Model.Status == "Đã hủy")
+    {
+        <div class="alert alert-danger" style="margin-bottom:0">
+            ❌ Đơn hàng đã bị huỷ.
+        </div>
+    }
+    else
+    {
+        using (Html.BeginForm("UpdateStatus", "Order", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.OrderID" />
+            <select name="status" class="status-select">
+                @foreach (var s in new[] { "Chờ xác nhận", "Đã xác nhận", "Đang giao", "Hoàn thành", "Đã hủy" })
+                {
+                    if (Model.Status == s)
+                    {
+                        <option value="@s" selected="selected">@s</option>
+                    }
+                    else
+                    {
+                        <option value="@s">@s</option>
+                    }
+                }
+            </select>
+            <button type="submit" class="btn btn-success"
+                    onclick="return confirmStatus(this.form)">
+                💾 Lưu trạng thái
+            </button>
+
+            if (Model.Status != "Hoàn thành")
             {
-                if (Model.Status == s)
-                {
-                    <option value="@s" selected="selected">@s</option>
- }
-                else
-                {
-                    <option value="@s">@s</option>
-}
+                <div class="warn-box">
+                    ⚠️ Khi chọn <b>"Hoàn thành"</b>, hệ thống sẽ tự động <b>trừ tồn kho</b> của từng sản phẩm trong đơn.
+                </div>
             }
-        </select>
-        <button type="submit" class="btn btn-success">💾 Lưu trạng thái</button>
+        }
     }
 </div>
+
+@section scripts {
+    <script>function confirmStatus(form) {
+    var sel = form.querySelector('select[name="status"]');
+    if (sel.value === "Hoàn thành") {
+        return confirm("Xác nhận hoàn thành đơn hàng? Hệ thống sẽ TRỪ tồn kho ngay sau khi lưu!");
+    }
+    if (sel.value === "Đã hủy") {
+        return confirm("Bạn có chắc muốn HUỶ đơn hàng này?");
+    }
+    return true;
+}</script>
+}

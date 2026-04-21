@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "Sửa danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+}
+
+@model Thue_san_the_thao.Models.Data.Facility
+
+
+<style>
+    /* ===== GLOBAL ===== */
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    }
+
+    /* ===== HEADER ===== */
+    .page-header {
+        display: flex;
+        justify-content: end;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn {
+        padding: 9px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    /* primary gradient */
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white;
+        box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(99,102,241,0.4);
+        }
+
+    /* outline */
+    .btn-outline {
+        border: 1px solid #4e73df;
+        color: #4e73df;
+        background: transparent;
+    }
+
+        .btn-outline:hover {
+            background-color: #4e73df;
+            color: white;
+        }
+
+    /* ghost */
+    .btn-ghost {
+        background: transparent;
+        color: #64748b;
+    }
+
+        .btn-ghost:hover {
+            color: #1e293b;
+        }
+
+    /* ===== FORM CARD (GLASS EFFECT) ===== */
+    .form-card {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(12px);
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        max-width: 600px;
+        border: 1px solid rgba(255,255,255,0.4);
+    }
+
+    /* ===== FORM ===== */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: block;
+        color: #334155;
+    }
+
+    /* input modern */
+    .form-control {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        font-size: 14px;
+        transition: all 0.25s ease;
+        background: #f8fafc;
+    }
+
+        /* focus effect */
+        .form-control:focus {
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+            outline: none;
+        }
+
+    /* validation */
+    .validation-msg {
+        color: #ef4444;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    /* ===== ACTION BUTTONS ===== */
+    .form-actions {
+        margin-top: 25px;
+        display: flex;
+        gap: 12px;
+    }
+
+    /* ===== ANIMATION ===== */
+    .form-card {
+        animation: fadeUp 0.4s ease;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @@media (max-width: 768px) {
+        .form-card {
+            padding: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+    }
+</style>
+
+
+<div class="page-header">
+    <a href="@Url.Action("Index", "Facility")" class="btn btn-outline">← Quay lại</a>
+</div>
+
+<div class="form-card">
+    @using (Html.BeginForm("Edit", "Facility", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.FacilityID)
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.FacilityName, "Tên ", new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.FacilityName, new { @class = "form-control", placeholder = "Nhập tên..." })
+            @Html.ValidationMessageFor(m => m.FacilityName, "", new { @class = "validation-msg" })
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+            <a href="@Url.Action("Index", "Facility")" class="btn btn-ghost">Hủy</a>
+        </div>
+    }
+</div>
+
+
+

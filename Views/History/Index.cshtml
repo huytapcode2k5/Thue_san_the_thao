@@ -168,6 +168,11 @@
         color: #1e40af;
     }
 
+    .badge-shipping {
+        background: #ede9fe;
+        color: #7c3aed;
+    }
+
     .badge-completed {
         background: #dcfce7;
         color: #166534;
@@ -332,7 +337,6 @@
         </div>
     }
 
-    @* ===== TAB BAR ===== *@
     <div class="tab-bar">
         <a href="@Url.Action("Index", "History", new { tab = "booking" })"
            class="tab-btn @(tab == "booking" ? "active" : "")">
@@ -356,9 +360,7 @@
             <div class="empty-state">
                 <i class="fas fa-calendar-xmark"></i>
                 <p>Bạn chưa có lần đặt sân nào</p>
-                <a href="/Booking" class="btn-go">
-                    <i class="fas fa-calendar-check"></i> Đặt sân ngay
-                </a>
+                <a href="/Booking/DatSan" class="btn-go"><i class="fas fa-calendar-check"></i> Đặt sân ngay</a>
             </div>
         }
         else
@@ -373,7 +375,6 @@
                             Đặt lúc: @b.CreatedAt
                         </span>
                     </div>
-
                     <div class="his-card-body">
                         <div class="his-info-group">
                             <div class="his-field-name">@b.FieldName</div>
@@ -381,22 +382,31 @@
                             <div class="his-meta"><i class="fas fa-futbol"></i> @b.FieldType</div>
                             <div class="his-meta"><i class="fas fa-calendar"></i> @b.BookingDate</div>
                             <div class="his-meta"><i class="fas fa-clock"></i> @b.StartTime – @b.EndTime</div>
+                            @if (b.TotalAmount > 0)
+                            {
+                                <div class="his-meta">
+                                    <i class="fas fa-tag"></i>
+                                    <span style="font-weight:600; color:#059669">@String.Format("{0:N0}đ", b.TotalAmount)</span>
+                                </div>
+                            }
                         </div>
-
                         <div class="his-card-actions">
                             @{
-                                var bCls = b.Status == "confirmed" ? "badge-confirmed"
-                                         : b.Status == "completed" ? "badge-completed"
-                                         : b.Status == "cancelled" ? "badge-cancelled"
-                                         : "badge-pending";
-                                var bTxt = b.Status == "confirmed" ? "Đã xác nhận"
-                                         : b.Status == "completed" ? "Hoàn thành"
-                                         : b.Status == "cancelled" ? "Đã huỷ"
-                                         : "Chờ xác nhận";
+                                string bCls, bTxt;
+                                switch ((b.Status ?? "").ToLower())
+                                {
+                                    case "confirmed":
+                                        bCls = "badge-confirmed"; bTxt = "Đã xác nhận"; break;
+                                    case "hoàn thành":
+                                        bCls = "badge-completed"; bTxt = "Hoàn thành"; break;
+                                    case "cancelled":
+                                        bCls = "badge-cancelled"; bTxt = "Đã huỷ"; break;
+                                    default:
+                                        bCls = "badge-pending"; bTxt = "Chờ xác nhận"; break;
+                                }
                             }
                             <span class="badge-status @bCls">@bTxt</span>
-
-                            @if (b.Status == "pending")
+                            @if ((b.Status ?? "").ToLower() == "pending")
                             {
                                 using (Html.BeginForm("CancelBooking", "History", FormMethod.Post, new { style = "margin:0" }))
                                 {
@@ -415,7 +425,7 @@
         }
     }
 
-    @* ===== TAB: ĐƠN HÀNG SẢN PHẨM ===== *@
+    @* ===== TAB: ĐƠN HÀNG ===== *@
     @if (tab == "order")
     {
         if (!orders.Any())
@@ -423,30 +433,24 @@
             <div class="empty-state">
                 <i class="fas fa-box-open"></i>
                 <p>Bạn chưa có đơn hàng nào</p>
-                <a href="/Product" class="btn-go">
-                    <i class="fas fa-store"></i> Mua sắm ngay
-                </a>
+                <a href="/Shop" class="btn-go"><i class="fas fa-store"></i> Mua sắm ngay</a>
             </div>
         }
         else
         {
             foreach (var o in orders)
             {
+                var oCls = o.Status == "Đã xác nhận" ? "badge-confirmed"
+                            : o.Status == "Đang giao" ? "badge-shipping"
+                            : o.Status == "Hoàn thành" ? "badge-completed"
+                            : o.Status == "Đã hủy" ? "badge-cancelled"
+                            : "badge-pending";
+                var oTxt = o.Status ?? "Chờ xác nhận";
+
                 <div class="his-card">
                     <div class="his-card-head">
                         <span class="his-card-id">Đơn #@o.OrderID</span>
                         <div style="display:flex;align-items:center;gap:10px">
-                            @{
-                                var oCls = o.Status == "confirmed" ? "badge-confirmed"
-                                         : o.Status == "completed" || o.Status == "delivered" ? "badge-completed"
-                                         : o.Status == "cancelled" ? "badge-cancelled"
-                                         : "badge-pending";
-                                var oTxt = o.Status == "confirmed" ? "Đã xác nhận"
-                                         : o.Status == "completed" ? "Hoàn thành"
-                                         : o.Status == "delivered" ? "Đã giao"
-                                         : o.Status == "cancelled" ? "Đã huỷ"
-                                         : "Chờ xử lý";
-                            }
                             <span class="badge-status @oCls">@oTxt</span>
                             <span class="his-card-date">@o.OrderDate</span>
                         </div>
@@ -465,7 +469,7 @@
                                     <div class="order-item-img-ph"><i class="fas fa-image"></i></div>
                                 }
                                 <span class="order-item-name">@item.ProductName</span>
-                                <span class="order-item-qty">x@item.Quantity</span>
+                                <span class="order-item-qty">Số lượng : @item.Quantity</span>
                                 <span class="order-item-price">@String.Format("{0:N0}đ", item.Price * item.Quantity)</span>
                             </div>
                         }

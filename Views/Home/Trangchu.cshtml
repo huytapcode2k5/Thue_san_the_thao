@@ -1,9 +1,1195 @@
-﻿
-@{
-    ViewBag.Title = "Trangchu";
+﻿@{
+    ViewBag.Title = "Trang chủ";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Trangchu</h2>
+<div class="hp-wrapper">
 
+    <!-- ═══════════════════════════════════════
+         HERO
+    ════════════════════════════════════════ -->
+    <section class="hero">
+        <div class="hero__bg" style="background-image:url('/Images/sport.jpg')"></div>
+        <div class="hero__overlay"></div>
 
+        <div class="hero__body">
+            <div class="hero__eyebrow">Nền tảng đặt sân #1 Việt Nam</div>
+            <h1 class="hero__title">
+                Đặt sân thể thao<br />
+                <span class="hero__title--accent">chỉ trong 30 giây</span>
+            </h1>
+            <p class="hero__sub">
+                Nhanh chóng &bull; Minh bạch &bull; Không cần gọi điện<br />
+                Hệ thống đặt sân hiện đại dành cho bạn
+            </p>
+            <div class="hero__actions">
+                <a href="#fieldList" class="btn-primary-hero">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                    Đặt sân ngay
+                </a>
+                <a href="/Shop" class="btn-ghost-hero">Mua dụng cụ →</a>
+            </div>
+
+            <div class="hero__stats">
+                <div class="stat-item">
+                    <strong>100+</strong>
+                    <span>Sân hoạt động</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <strong>1K+</strong>
+                    <span>Khách mỗi tháng</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <strong>4.9 ★</strong>
+                    <span>Đánh giá</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         SÂN THỂ THAO
+    ════════════════════════════════════════ -->
+    <section class="section" id="fieldSection">
+        <div class="section__head">
+            <div class="section__label">Hệ thống sân</div>
+            <h2 class="section__title">Sân thể thao</h2>
+            <p class="section__sub">Chọn loại sân và đặt lịch nhanh chóng</p>
+        </div>
+
+        <div class="filter-row">
+            <button class="chip active" onclick="showFields('football', this)">
+                <span>⚽</span> Bóng đá
+            </button>
+            <button class="chip" onclick="showFields('badminton', this)">
+                <span>🏸</span> Cầu lông
+            </button>
+            <button class="chip" onclick="showFields('tennis', this)">
+                <span>🎾</span> Tennis
+            </button>
+            <button class="chip" onclick="showFields('pickleball', this)">
+                <span>🏓</span> Pickleball
+            </button>
+        </div>
+
+        <div class="field-grid" id="fieldList"></div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         SẢN PHẨM NỔI BẬT
+    ════════════════════════════════════════ -->
+    <section class="section section--tinted">
+        <div class="section__head">
+            <div class="section__label">Cửa hàng</div>
+            <h2 class="section__title">Sản phẩm nổi bật</h2>
+            <p class="section__sub">Trang bị đầy đủ dụng cụ để thi đấu tốt nhất</p>
+        </div>
+
+        @{
+            var products = ViewBag.Products as IEnumerable<dynamic>;
+        }
+
+        @if (products != null && products.Any())
+        {
+            <div class="product-grid" id="productGrid">
+                @foreach (dynamic p in products)
+                {
+                    <div class="product-card">
+                        <div class="product-card__img-wrap">
+                            <img src="@Url.Content("~/Images/" + p.Image)"
+                                 onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'"
+                                 alt="@p.Name" />
+                            @if (p.Stock <= 0)
+                            {
+                                <span class="badge-out">Hết hàng</span>
+                            }
+                        </div>
+                        <div class="product-card__body">
+                            <p class="product-card__name">@p.Name</p>
+                            <div class="product-card__row">
+                                <span class="product-card__price">@String.Format("{0:N0}", p.Price)đ</span>
+                                <span class="product-card__stock">Còn @p.Stock</span>
+                            </div>
+                            @if (p.Stock > 0)
+                            {
+                                <button class="btn-addcart" onclick="addToCart(@p.ProductID, this)">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
+                                    Thêm vào giỏ
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn-addcart btn-addcart--disabled" disabled>Hết hàng</button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="section__cta">
+                <a href="/Shop" class="btn-outline-green">Xem tất cả sản phẩm →</a>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">Chưa có sản phẩm nào.</div>
+        }
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         ĐÁNH GIÁ
+    ════════════════════════════════════════ -->
+    <section class="section">
+        <div class="section__head">
+            <div class="section__label">Phản hồi</div>
+            <h2 class="section__title">Khách hàng nói gì</h2>
+            <p class="section__sub">Trải nghiệm thực tế từ người dùng</p>
+        </div>
+
+        @if (Session["UserId"] != null)
+        {
+            <div class="review-form">
+                <div class="review-form__header">
+                    <div class="review-form__avatar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                    </div>
+                    <div>
+                        <p class="review-form__title">Viết đánh giá của bạn</p>
+                        <p class="review-form__sub">Chia sẻ trải nghiệm với hệ thống</p>
+                    </div>
+                </div>
+
+                <div class="star-picker" id="starSelector">
+                    <span class="star-btn" data-val="1">★</span>
+                    <span class="star-btn" data-val="2">★</span>
+                    <span class="star-btn" data-val="3">★</span>
+                    <span class="star-btn" data-val="4">★</span>
+                    <span class="star-btn" data-val="5">★</span>
+                    <span class="star-hint" id="starLabel">Chưa chọn</span>
+                </div>
+                <input type="hidden" id="ratingValue" value="0" />
+
+                <textarea id="reviewComment" rows="3"
+                          placeholder="Viết cảm nhận của bạn..."
+                          class="review-form__textarea"></textarea>
+
+                <div class="review-form__footer">
+                    <button class="btn-send-review" onclick="submitReview()">Gửi đánh giá</button>
+                    <span id="reviewMsg" class="review-form__msg"></span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="login-cta">
+                <p>Đăng nhập để chia sẻ trải nghiệm của bạn</p>
+                <a href="/Account/Login" class="btn-outline-green">Đăng nhập →</a>
+            </div>
+        }
+
+        <div class="review-grid" id="reviewList">
+            @if (ViewBag.Reviews != null)
+            {
+                foreach (var r in ViewBag.Reviews)
+                {
+                    <div class="review-card">
+                        <div class="review-card__stars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <span class="@(i <= (int)r.Rating ? "star-on" : "star-off")">★</span>
+                            }
+                        </div>
+                        <p class="review-card__comment">"@r.Comment"</p>
+                        <div class="review-card__meta">
+                            <span class="review-card__user">@(r.User != null ? r.User.FullName : "Ẩn danh")</span>
+                            <span class="review-card__date">@r.CreatedAt.ToString("dd/MM/yyyy")</span>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">Chưa có đánh giá nào.</div>
+            }
+        </div>
+    </section>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TOAST
+════════════════════════════════════════════ -->
+<div class="hp-toast" id="hpToast"></div>
+
+<!-- ═══════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════ -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+    initStarRating();
+    showFields('football', document.querySelector(".chip"));
+});
+
+/* ---- STAR RATING ---- */
+function initStarRating() {
+    const labels = ["","Tệ","Không tốt","Bình thường","Tốt","Tuyệt vời!"];
+    let cur = 0;
+    document.querySelectorAll(".star-btn").forEach(function(s){
+        s.addEventListener("mouseenter", function(){ highlightStars(parseInt(this.dataset.val)); });
+        s.addEventListener("mouseleave", function(){ highlightStars(cur); });
+        s.addEventListener("click", function(){
+            cur = parseInt(this.dataset.val);
+            document.getElementById("ratingValue").value = cur;
+            highlightStars(cur);
+            document.getElementById("starLabel").innerText = labels[cur];
+        });
+    });
+}
+function highlightStars(n){
+    document.querySelectorAll(".star-btn").forEach(function(s){
+        s.classList.toggle("active", parseInt(s.dataset.val) <= n);
+    });
+}
+
+/* ---- CART ---- */
+function addToCart(productId, btn) {
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = "Đang thêm…";
+    $.ajax({
+        url: '/Home/AddToCart', type: 'POST',
+        data: { productId: productId, quantity: 1 },
+        success: function(res){
+            if(res.success){
+                btn.innerHTML = "✓ Đã thêm!";
+                btn.classList.add("btn-addcart--added");
+                const badge = document.querySelector(".cart-badge");
+                if(badge){ badge.innerText = res.cartCount; badge.style.display = "flex"; }
+                else {
+                    const cartBtn = document.querySelector(".btn-cart-nav");
+                    if(cartBtn){
+                        const nb = document.createElement("span");
+                        nb.className = "cart-badge";
+                        nb.innerText = res.cartCount;
+                        cartBtn.appendChild(nb);
+                    }
+                }
+                setTimeout(function(){
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                    btn.classList.remove("btn-addcart--added");
+                }, 1600);
+            } else {
+                showToast(res.message, "error");
+                btn.innerHTML = orig; btn.disabled = false;
+            }
+        },
+        error: function(){ showToast("Có lỗi xảy ra!", "error"); btn.innerHTML = orig; btn.disabled = false; }
+    });
+}
+
+/* ---- REVIEW ---- */
+function submitReview(){
+    const rating  = parseInt(document.getElementById("ratingValue").value);
+    const comment = document.getElementById("reviewComment").value.trim();
+    const msg     = document.getElementById("reviewMsg");
+    const btn     = document.querySelector(".btn-send-review");
+
+    if(!rating){ showInlineMsg(msg,"Vui lòng chọn số sao!","error"); return; }
+    if(!comment){ showInlineMsg(msg,"Vui lòng nhập nội dung!","error"); return; }
+
+    btn.disabled = true; btn.textContent = "Đang gửi…";
+    $.ajax({
+        url:'/Home/SubmitReview', type:'POST',
+        data:{ rating:rating, comment:comment }, dataType:'json',
+        success:function(res){
+            if(res.success){
+                showInlineMsg(msg,"Cảm ơn bạn đã đánh giá!","success");
+                document.getElementById("reviewComment").value = "";
+                document.getElementById("ratingValue").value = 0;
+                document.getElementById("starLabel").innerText = "Chưa chọn";
+                highlightStars(0);
+                const stars = Array.from({length:5},(_,i) =>
+                    `<span class="${i<rating?'star-on':'star-off'}">★</span>`).join("");
+                const today = new Date();
+                const d = today.getDate().toString().padStart(2,"0")+"/"+(today.getMonth()+1).toString().padStart(2,"0")+"/"+today.getFullYear();
+                const esc = comment.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+                document.getElementById("reviewList").insertAdjacentHTML("afterbegin",`
+                    <div class="review-card review-card--new">
+                        <div class="review-card__stars">${stars}</div>
+                        <p class="review-card__comment">"${esc}"</p>
+                        <div class="review-card__meta">
+                            <span class="review-card__user">Bạn</span>
+                            <span class="review-card__date">${d}</span>
+                        </div>
+                    </div>`);
+            } else {
+                showInlineMsg(msg, res.message||"Có lỗi!", "error");
+            }
+        },
+        error:function(xhr){ showInlineMsg(msg,"Lỗi " + xhr.status + ": " + (xhr.responseText||"Thử lại!"),"error"); },
+        complete:function(){ btn.disabled=false; btn.textContent="Gửi đánh giá"; }
+    });
+}
+
+function showInlineMsg(el, text, type){
+    if(!el) return;
+    el.textContent = text;
+    el.className = "review-form__msg review-form__msg--" + type;
+    setTimeout(function(){ el.textContent=""; el.className="review-form__msg"; }, 3200);
+}
+
+/* ---- FIELDS: lấy từ DB qua ViewBag.FieldsByType ---- */
+const baseImg = '@Url.Content("~/Images/field/")';
+const data = @Html.Raw(ViewBag.FieldsJson ?? "{}");
+
+function showFields(type, btn){
+    document.querySelectorAll(".chip").forEach(b=>b.classList.remove("active"));
+    if(btn) btn.classList.add("active");
+    const list = document.getElementById("fieldList");
+    if(!list) return;
+    list.style.opacity = 0;
+    list.style.transform = "translateY(16px)";
+    setTimeout(function(){
+        list.innerHTML = "";
+        (data[type]||[]).forEach(function(f, i){
+            list.innerHTML += `
+            <div class="fc" style="animation-delay:${i*0.07}s">
+                <div class="fc__img-wrap">
+                    <img src="${baseImg}${f.img}" onerror="this.src='https://via.placeholder.com/300x230?text=No+Image'" alt="${f.name}" />
+                </div>
+                <div class="fc__overlay"></div>
+                <div class="fc__body">
+                    <h5 class="fc__name">${f.name}</h5>
+                    <p class="fc__price">200.000 VNĐ / giờ</p>
+                    <a href="/Booking/Index?fieldId=${f.id}" class="fc__btn">Đặt ngay</a>
+                </div>
+            </div>`;
+        });
+        list.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+        list.style.opacity = 1;
+        list.style.transform = "translateY(0)";
+    }, 180);
+}
+
+/* ---- TOAST ---- */
+function showToast(msg, type){
+    const t = document.getElementById("hpToast");
+    t.textContent = msg;
+    t.className = "hp-toast hp-toast--"+type+" hp-toast--show";
+    setTimeout(function(){ t.className = "hp-toast"; }, 3200);
+}
+</script>
+
+<!-- ═══════════════════════════════════════════
+     STYLES
+════════════════════════════════════════════ -->
+<style>
+    /* ── TOKENS ── */
+    :root {
+        --green-dark: #0f5c35;
+        --green-mid: #1a7a4a;
+        --green-light: #00c853;
+        --green-pale: #e8f5e9;
+        --gold: #f5d478;
+        --gold-dim: rgba(212,175,55,0.25);
+        --text-main: #0d1f16;
+        --text-muted: #6b7c72;
+        --bg-tinted: #f6faf7;
+        --radius-card: 18px;
+        --shadow-soft: 0 4px 30px rgba(0,0,0,0.08);
+        --shadow-lift: 0 12px 40px rgba(0,0,0,0.14);
+    }
+
+    /* ── WRAPPER ── */
+    .hp-wrapper {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0 16px 80px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 72px;
+    }
+
+    .hero__bg {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        transform: scale(1.04);
+        transition: transform 8s ease;
+    }
+
+    .hero:hover .hero__bg {
+        transform: scale(1);
+    }
+
+    .hero__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(120deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.38) 65%, rgba(0,0,0,0.18) 100%);
+    }
+
+    .hero__body {
+        position: relative;
+        z-index: 2;
+        padding: 64px 60px;
+        max-width: 620px;
+    }
+
+    .hero__eyebrow {
+        display: inline-block;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--gold);
+        border: 1px solid var(--gold-dim);
+        background: var(--gold-dim);
+        padding: 5px 14px;
+        border-radius: 100px;
+        margin-bottom: 20px;
+    }
+
+    .hero__title {
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.25;
+        margin: 0 0 16px;
+        letter-spacing: -0.5px;
+    }
+
+    .hero__title--accent {
+        color: #4ade80;
+    }
+
+    .hero__sub {
+        color: rgba(255,255,255,0.72);
+        font-size: 15px;
+        line-height: 1.7;
+        margin: 0 0 32px;
+    }
+
+    .hero__actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 36px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary-hero {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--green-light);
+        color: #fff;
+        padding: 13px 28px;
+        border-radius: 100px;
+        font-weight: 700;
+        font-size: 15px;
+        text-decoration: none;
+        box-shadow: 0 8px 24px rgba(0,200,83,0.35);
+        transition: all 0.22s;
+    }
+
+        .btn-primary-hero:hover {
+            background: var(--green-mid);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0,200,83,0.45);
+            color: #fff;
+            text-decoration: none;
+        }
+
+    .btn-ghost-hero {
+        color: rgba(255,255,255,0.85);
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255,255,255,0.3);
+        padding-bottom: 2px;
+        transition: 0.2s;
+    }
+
+        .btn-ghost-hero:hover {
+            color: #fff;
+            border-color: #fff;
+            text-decoration: none;
+        }
+
+    .hero__stats {
+        display: flex;
+        align-items: center;
+        gap: 0;
+    }
+
+    .stat-item {
+        padding: 0 24px 0 0;
+    }
+
+        .stat-item:first-child {
+            padding-left: 0;
+        }
+
+        .stat-item strong {
+            display: block;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+
+        .stat-item span {
+            font-size: 12px;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 0.3px;
+        }
+
+    .stat-divider {
+        width: 1px;
+        height: 36px;
+        background: rgba(255,255,255,0.18);
+        margin-right: 24px;
+        flex-shrink: 0;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+        margin-bottom: 72px;
+    }
+
+    .section--tinted {
+        background: var(--bg-tinted);
+        border-radius: 24px;
+        padding: 48px 40px;
+        margin-left: -8px;
+        margin-right: -8px;
+    }
+
+    .section__head {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .section__label {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--green-mid);
+        background: var(--green-pale);
+        padding: 4px 14px;
+        border-radius: 100px;
+        margin-bottom: 12px;
+    }
+
+    .section__title {
+        font-size: clamp(1.5rem, 3vw, 2rem);
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0 0 8px;
+        letter-spacing: -0.3px;
+    }
+
+    .section__sub {
+        color: var(--text-muted);
+        font-size: 14.5px;
+        margin: 0;
+    }
+
+    .section__cta {
+        text-align: center;
+        margin-top: 36px;
+    }
+
+    /* ── FILTER CHIPS ── */
+    .filter-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 36px;
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 22px;
+        border-radius: 100px;
+        border: 1.5px solid #d5e8da;
+        background: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .chip:hover {
+            border-color: var(--green-mid);
+            color: var(--green-mid);
+            transform: translateY(-2px);
+        }
+
+        .chip.active {
+            background: var(--green-mid);
+            border-color: var(--green-mid);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(26,122,74,0.28);
+        }
+
+    /* ── FIELD CARDS ── */
+    .field-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 20px;
+        transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .fc {
+        position: relative;
+        border-radius: var(--radius-card);
+        overflow: hidden;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: fcUp 0.45s ease forwards;
+        box-shadow: var(--shadow-soft);
+    }
+
+    @@keyframes fcUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fc__img-wrap {
+        overflow: hidden;
+        height: 220px;
+    }
+
+        .fc__img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+    .fc:hover .fc__img-wrap img {
+        transform: scale(1.1);
+    }
+
+    .fc__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.08) 55%);
+    }
+
+    .fc__body {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px 18px 18px;
+    }
+
+    .fc__name {
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    .fc__price {
+        color: var(--gold);
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 12px;
+    }
+
+    .fc__btn {
+        display: inline-block;
+        padding: 7px 18px;
+        background: var(--green-light);
+        color: #fff;
+        border-radius: 100px;
+        font-size: 12.5px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+        box-shadow: 0 4px 14px rgba(0,200,83,0.3);
+    }
+
+        .fc__btn:hover {
+            background: var(--green-mid);
+            transform: scale(1.05);
+            text-decoration: none;
+            color: #fff;
+        }
+
+    /* ── PRODUCT GRID ── */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 20px;
+    }
+
+    .product-card {
+        background: #fff;
+        border-radius: var(--radius-card);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lift);
+        }
+
+    .product-card__img-wrap {
+        position: relative;
+        height: 175px;
+        overflow: hidden;
+        background: #f5f5f5;
+    }
+
+        .product-card__img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+
+    .product-card:hover .product-card__img-wrap img {
+        transform: scale(1.07);
+    }
+
+    .badge-out {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #dc2626;
+        color: #fff;
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 100px;
+        letter-spacing: 0.3px;
+    }
+
+    .product-card__body {
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        gap: 6px;
+    }
+
+    .product-card__name {
+        font-weight: 700;
+        font-size: 13.5px;
+        color: var(--text-main);
+        margin: 0;
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-card__row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+    }
+
+    .product-card__price {
+        font-weight: 800;
+        font-size: 15px;
+        color: var(--green-mid);
+    }
+
+    .product-card__stock {
+        font-size: 11.5px;
+        color: #aaa;
+    }
+
+    .btn-addcart {
+        margin-top: auto;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: 100%;
+        padding: 10px;
+        background: #e8f5e9 !important;
+        color: #0f5c35 !important;
+        border: 1.5px solid #a5d6a7 !important;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .btn-addcart:hover {
+            background: #1a7a4a !important;
+            color: #fff !important;
+            border-color: #1a7a4a !important;
+        }
+
+    .btn-addcart--added {
+        background: #1a7a4a !important;
+        color: #fff !important;
+        border-color: #1a7a4a !important;
+    }
+
+    .btn-addcart--disabled {
+        background: #f5f5f5 !important;
+        color: #bbb !important;
+        border-color: #e0e0e0 !important;
+        cursor: not-allowed;
+    }
+
+    /* ── BTN SHARED ── */
+    .btn-outline-green {
+        display: inline-block;
+        padding: 11px 28px;
+        border: 2px solid var(--green-mid);
+        color: var(--green-mid);
+        border-radius: 100px;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+        .btn-outline-green:hover {
+            background: var(--green-mid);
+            color: #fff;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+    /* ── REVIEW FORM ── */
+    .review-form {
+        background: #fff;
+        border-radius: var(--radius-card);
+        padding: 28px 32px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(0,0,0,0.05);
+        max-width: 620px;
+        margin: 0 auto 48px;
+    }
+
+    .review-form__header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .review-form__avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--green-pale);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--green-mid);
+        flex-shrink: 0;
+    }
+
+    .review-form__title {
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--text-main);
+        margin: 0 0 2px;
+    }
+
+    .review-form__sub {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .star-picker {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 16px;
+    }
+
+    .star-btn {
+        font-size: 30px;
+        color: #e0e0e0;
+        cursor: pointer;
+        transition: color 0.15s, transform 0.15s;
+        user-select: none;
+        line-height: 1;
+    }
+
+        .star-btn:hover, .star-btn.active {
+            color: #fbbf24;
+            transform: scale(1.22);
+        }
+
+    .star-hint {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-left: 10px;
+    }
+
+    .review-form__textarea {
+        width: 100%;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 14px;
+        resize: vertical;
+        outline: none;
+        display: block;
+        transition: border 0.2s;
+        color: var(--text-main);
+        box-sizing: border-box;
+        font-family: inherit;
+        margin-bottom: 16px;
+    }
+
+        .review-form__textarea:focus {
+            border-color: var(--green-mid);
+        }
+
+    .review-form__footer {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .btn-send-review {
+        padding: 11px 28px;
+        background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+        color: #fff;
+        border: none;
+        border-radius: 100px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 6px 20px rgba(26,122,74,0.28);
+    }
+
+        .btn-send-review:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(26,122,74,0.38);
+        }
+
+    .review-form__msg {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .review-form__msg--success {
+        color: var(--green-mid);
+    }
+
+    .review-form__msg--error {
+        color: #dc2626;
+    }
+
+    /* ── REVIEW GRID ── */
+    .review-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .review-card {
+        background: #fff;
+        border-radius: var(--radius-card);
+        padding: 22px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lift);
+        }
+
+    .review-card--new {
+        border: 1.5px solid var(--green-mid);
+        animation: fcUp 0.4s ease;
+    }
+
+    .review-card__stars {
+        font-size: 17px;
+    }
+
+    .star-on {
+        color: #fbbf24;
+    }
+
+    .star-off {
+        color: #e5e7eb;
+    }
+
+    .review-card__comment {
+        font-style: italic;
+        color: #444;
+        font-size: 14px;
+        line-height: 1.65;
+        flex: 1;
+        margin: 0;
+    }
+
+    .review-card__meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #bbb;
+        border-top: 1px solid #f3f4f6;
+        padding-top: 10px;
+    }
+
+    .review-card__user {
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    /* ── LOGIN CTA ── */
+    .login-cta {
+        text-align: center;
+        padding: 32px;
+        background: var(--green-pale);
+        border-radius: 16px;
+        margin-bottom: 40px;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+        .login-cta p {
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+        font-size: 14px;
+        grid-column: 1/-1;
+    }
+
+    /* ── TOAST ── */
+    .hp-toast {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        padding: 13px 28px;
+        border-radius: 100px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        z-index: 9999;
+        white-space: nowrap;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+
+    .hp-toast--show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .hp-toast--success {
+        background: var(--green-mid);
+    }
+
+    .hp-toast--error {
+        background: #dc2626;
+    }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .hero__body {
+            padding: 48px 24px;
+        }
+
+        .hero__title {
+            font-size: 1.75rem;
+        }
+
+        .section--tinted {
+            padding: 36px 20px;
+            margin: 0 -8px;
+        }
+
+        .field-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .review-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero__stats {
+            gap: 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            padding: 0 16px 0 0;
+        }
+
+        .review-form {
+            padding: 22px 18px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .field-grid, .product-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero__actions {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>

@@ -292,6 +292,7 @@
     var allOrders = Model.ToList();
     int totalAll = allOrders.Count;
     int totalPending = allOrders.Count(o => o.Status == "Chờ xác nhận");
+    int totalConfirmed = allOrders.Count(o => o.Status == "Đã xác nhận" || o.Status == "Đang giao");
     int totalCompleted = allOrders.Count(o => o.Status == "Hoàn thành");
     int totalCancelled = allOrders.Count(o => o.Status == "Đã hủy");
 }
@@ -310,6 +311,10 @@
     <div class="stat-card stat-pending">
         <div class="stat-num">@totalPending</div>
         <div class="stat-label">Chờ xác nhận</div>
+    </div>
+    <div class="stat-card" style="border-top:3px">
+        <div class="stat-num" style="color:#2563eb">@totalConfirmed</div>
+        <div class="stat-label">Đã xác nhận / Đang giao</div>
     </div>
     <div class="stat-card stat-completed">
         <div class="stat-num">@totalCompleted</div>
@@ -335,11 +340,11 @@
             if (ViewBag.Status == s)
             {
                 <option value="@s" selected="selected">@s</option>
- }
+            }
             else
             {
                 <option value="@s">@s</option>
-}
+            }
         }
     </select>
     <button type="submit" class="btn btn-primary">Lọc</button>
@@ -356,6 +361,7 @@
                 <th>Ngày đặt</th>
                 <th>Tổng tiền</th>
                 <th>Trạng thái</th>
+                <th>Nội dung CK</th>
                 <th style="width:160px; text-align:center">Thao tác</th>
             </tr>
         </thead>
@@ -405,6 +411,7 @@
                         }
                         <span class="badge @badgeClass">@(item.Status ?? "—")</span>
                     </td>
+                    <td style="font-size:13px;font-weight:700;color:#f59e0b">DH @item.OrderID</td>
                     <td class="action-cell">
                         <a href="@Url.Action("Details", "Order", new { id = item.OrderID })"
                            class="btn btn-sm btn-info">Chi tiết</a>

@@ -1,0 +1,273 @@
+﻿@model Thue_san_the_thao.Models.Data.User
+@{
+    ViewBag.Title = "Chỉnh sửa người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+}
+
+<style>
+    /* ===== GLOBAL ===== */
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    }
+
+    /* ===== HEADER ===== */
+    .page-header {
+        display: flex;
+        justify-content: end;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn {
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.25s;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white;
+        box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+    .btn-outline {
+        border: 1px solid #4e73df;
+        color: #4e73df;
+        background: transparent;
+    }
+
+        .btn-outline:hover {
+            background-color: #4e73df;
+            color: white;
+        }
+
+    .btn-ghost {
+        background: transparent;
+        color: #64748b;
+    }
+
+    /* ===== CARD ===== */
+    .form-card-wide {
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(12px);
+        padding: 30px;
+        border-radius: 18px;
+        box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+    }
+
+    /* ===== SECTION ===== */
+    .form-section-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #6366f1;
+        margin-bottom: 15px;
+        border-left: 4px solid #6366f1;
+        padding-left: 10px;
+    }
+
+    /* ===== FORM GRID ===== */
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 18px;
+    }
+
+    .form-group {
+        flex: 1;
+    }
+
+    /* ===== INPUT ===== */
+    .form-label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        transition: 0.25s;
+    }
+
+        .form-control:focus {
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+            outline: none;
+        }
+
+    /* ===== VALIDATION ===== */
+    .validation-msg {
+        color: #ef4444;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    /* ===== IMAGE UPLOAD ===== */
+    .image-upload-area {
+        border: 2px dashed #c7d2fe;
+        border-radius: 14px;
+        padding: 20px;
+        background: #f8fafc;
+        text-align: center;
+    }
+
+    /* preview wrap */
+    .image-preview-wrap {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    /* image */
+    .image-preview {
+        width: 110px;
+        height: 110px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 1px solid #e5e7eb;
+    }
+
+    /* placeholder */
+    .image-placeholder {
+        width: 110px;
+        height: 110px;
+        border-radius: 12px;
+        background: #eef2ff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #6366f1;
+        font-size: 13px;
+    }
+
+    /* info */
+    .image-info {
+        text-align: left;
+    }
+
+    .image-filename {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .image-hint {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    /* hidden input */
+    .file-input {
+        display: none;
+    }
+
+    /* upload button */
+    .btn-upload {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 8px 14px;
+        background: #6366f1;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-upload:hover {
+            background: #4f46e5;
+        }
+
+    /* ===== ACTION ===== */
+    .form-actions {
+        margin-top: 25px;
+        display: flex;
+        gap: 12px;
+    }
+
+    /* ===== ANIMATION ===== */
+    .form-card-wide {
+        animation: fadeUp 0.4s ease;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @@media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+        }
+
+        .image-preview-wrap {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+<div class="page-header">
+    <a href="@Url.Action("Index", "User")" class="btn btn-outline">← Quay lại</a>
+</div>
+@using (Html.BeginForm())
+{
+    <div class="form-group">
+        <label>Họ tên</label>
+        @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+    </div>
+
+    @*<div class="form-group">
+            <label>Email</label>
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+        </div>*@
+
+    <div class="form-group">
+        <label>Password</label>
+        @Html.TextBoxFor(m => m.PasswordHash, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Phone</label>
+        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+    </div>
+
+    @*<div class="form-group">
+            <label>Role</label>
+            @Html.DropDownList("RoleID", null, "-- Chọn Role --", new { @class = "form-control" })
+        </div>*@
+
+    <div class="form-group">
+        <label>Status</label>
+        @Html.TextBoxFor(m => m.Status, new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+}
+

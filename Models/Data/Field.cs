@@ -26,6 +26,8 @@ namespace Thue_san_the_thao.Models.Data
         public string FieldName { get; set; }
         public string Type { get; set; }
         public Nullable<bool> Status { get; set; }
+        public string Image { get; set; }
+        public Nullable<System.DateTime> FieldDate { get; set; }
     
         public virtual ICollection<Booking> Bookings { get; set; }
         public virtual Facility Facility { get; set; }

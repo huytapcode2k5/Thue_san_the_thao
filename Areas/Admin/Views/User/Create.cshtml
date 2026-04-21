@@ -1,0 +1,43 @@
+﻿@model Thue_san_the_thao.Models.Data.User
+
+@{
+    ViewBag.Title = "Thêm người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+}
+
+
+@using (Html.BeginForm())
+{
+    <div class="form-group">
+        <label>Họ tên</label>
+        @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Email</label>
+        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Password</label>
+        @Html.TextBoxFor(m => m.PasswordHash, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Phone</label>
+        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Role</label>
+        @Html.DropDownList("RoleID", null, "-- Chọn Role --", new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Status</label>
+        @Html.TextBoxFor(m => m.Status, new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+}
+

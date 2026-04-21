@@ -1,0 +1,713 @@
+﻿@{
+    ViewBag.Title = "Đặt Sân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int fieldId = ViewBag.FieldId;
+    string fieldName = ViewBag.FieldName ?? "Sân thể thao";
+    var slots = (System.Collections.IEnumerable)ViewBag.TimeSlots;
+}
+
+<div class="booking-wrapper">
+
+    <!-- HERO CARD -->
+    <div class="field-hero">
+        <div class="field-hero__image"
+             style="background-image:url('@Url.Content("~/Images/field/" + (ViewBag.FieldImage ?? "default.jpg"))')">
+            <!-- FIX: dung ~/Images/field/ (chu hoa I, folder field) -->
+            <div class="field-hero__gradient"></div>
+            <div class="field-hero__badge">Sân thể thao</div>
+            <div class="field-hero__info">
+                <h1 class="field-hero__name">@ViewBag.FieldName</h1>
+                <div class="field-hero__meta">
+                    <span class="meta-pill">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                        @ViewBag.FieldAddress
+                    </span>
+                    <span class="meta-pill meta-pill--gold">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                        Từ @String.Format("{0:N0}", ViewBag.FieldPrice)đ / giờ
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOKING PANEL -->
+    <div class="booking-panel">
+
+        <!-- DATE PICKER -->
+        <div class="section-block">
+            <div class="section-label">
+                <span class="section-label__icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                </span>
+                Chọn ngày
+            </div>
+            <div class="date-picker-wrap">
+                <input type="date" id="bookingDate" class="date-input" />
+            </div>
+        </div>
+
+        <!-- TIME SLOTS -->
+        <div id="timeContainer" class="section-block" style="display:none">
+            <div class="section-label">
+                <span class="section-label__icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                </span>
+                Chọn khung giờ
+            </div>
+
+            <div class="slots-legend">
+                <span class="legend-item"><span class="legend-dot legend-dot--free"></span>Còn trống</span>
+                <span class="legend-item"><span class="legend-dot legend-dot--selected"></span>Đã chọn</span>
+                <span class="legend-item"><span class="legend-dot legend-dot--booked"></span>Đã đặt</span>
+            </div>
+
+            <div class="time-grid">
+                @foreach (dynamic s in slots)
+                {
+                    string start = ((TimeSpan)s.StartTime).ToString(@"hh\:mm");
+                    string end = ((TimeSpan)s.EndTime).ToString(@"hh\:mm");
+                    // FIX: lay gia chinh xac cua slot nay tu PriceBySlotJson (xu ly phia JS)
+                    <button class="time-slot"
+                            data-id="@s.TimeSlotID"
+                            onclick="selectTime(this)">
+                        <span class="time-slot__time">@start</span>
+                        <span class="time-slot__sep">→</span>
+                        <span class="time-slot__time">@end</span>
+                        <span class="time-slot__price" id="price-@s.TimeSlotID"></span>
+                    </button>
+                }
+            </div>
+
+            <!-- SUMMARY BAR -->
+            <div class="summary-bar" id="summaryBar" style="display:none">
+                <div class="summary-bar__left">
+                    <span class="summary-bar__count" id="slotCount">0</span>
+                    <span class="summary-bar__label">khung giờ đã chọn</span>
+                </div>
+                <div class="summary-bar__right">
+                    <span class="summary-bar__total-label">Tổng</span>
+                    <span class="summary-bar__total" id="totalPrice">0đ</span>
+                </div>
+            </div>
+
+            <button onclick="book()" class="btn-book" id="bookBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                Xác nhận đặt sân
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+// FIX: PRICE_DEFAULT la gia fallback, PRICE_BY_SLOT la gia chinh xac tung slot
+const PRICE_DEFAULT  = @ViewBag.FieldPrice;
+const PRICE_BY_SLOT  = @Html.Raw(ViewBag.PriceBySlotJson ?? "{}");
+const FIELD_ID       = @ViewBag.FieldId;
+
+let selectedIds = [];
+
+// Tra gia cua 1 slot: dung chinh xac tu PRICE_BY_SLOT, fallback PRICE_DEFAULT
+function getSlotPrice(slotId) {
+    return PRICE_BY_SLOT[slotId] || PRICE_DEFAULT;
+}
+
+// Hien thi gia len tung nut slot sau khi render
+function renderSlotPrices() {
+    document.querySelectorAll(".time-slot").forEach(function(el) {
+        const id = parseInt(el.getAttribute("data-id"));
+        const priceEl = document.getElementById("price-" + id);
+        if (priceEl) {
+            const p = getSlotPrice(id);
+            priceEl.textContent = p.toLocaleString("vi-VN") + "đ";
+        }
+    });
+}
+
+document.getElementById("bookingDate").addEventListener("change", function () {
+    const date = this.value;
+    if (!date) return;
+
+    // Khong cho chon ngay trong qua khu
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (new Date(date) < today) {
+        showToast("Không thể đặt ngày trong quá khứ!", "warn");
+        this.value = "";
+        return;
+    }
+
+    document.getElementById("timeContainer").style.display = "block";
+    selectedIds = [];
+    renderSelected();
+    loadBooked();
+});
+
+function getDate() {
+    return document.getElementById("bookingDate").value;
+}
+
+function selectTime(el) {
+    if (!getDate())                    { showToast("Vui lòng chọn ngày trước!", "warn"); return; }
+    if (el.classList.contains("booked")) return;
+
+    const id = parseInt(el.getAttribute("data-id"));
+    if (selectedIds.includes(id)) {
+        // Bam lai => bo chon tu vi tri do tro di
+        const idx = selectedIds.indexOf(id);
+        selectedIds = selectedIds.slice(0, idx);
+    } else {
+        if (selectedIds.length === 0) {
+            selectedIds.push(id);
+        } else {
+            const lastId = selectedIds[selectedIds.length - 1];
+            if (id === lastId + 1) {
+                // Ke tiep => chon them
+                selectedIds.push(id);
+            } else {
+                // Khong ke tiep => chon lai tu dau
+                selectedIds = [id];
+            }
+        }
+    }
+
+    document.querySelectorAll(".time-slot").forEach(x => {
+        if (x.classList.contains("booked")) return;
+        const xId = parseInt(x.getAttribute("data-id"));
+        x.classList.toggle("active", selectedIds.includes(xId));
+    });
+
+    renderSelected();
+}
+
+function renderSelected() {
+    const bar = document.getElementById("summaryBar");
+    if (selectedIds.length === 0) {
+        bar.style.display = "none";
+        return;
+    }
+    bar.style.display = "flex";
+    document.getElementById("slotCount").textContent = selectedIds.length;
+
+    // FIX: cong gia tung slot rieng biet thay vi nhan chung 1 gia
+    const total = selectedIds.reduce(function(sum, id) {
+        return sum + getSlotPrice(id);
+    }, 0);
+    document.getElementById("totalPrice").textContent = total.toLocaleString("vi-VN") + "đ";
+}
+
+function loadBooked() {
+    const date = getDate();
+    if (!date) return;
+    $.get('/Booking/GetBooked', { fieldId: FIELD_ID, bookingDate: date }, function(data) {
+        document.querySelectorAll(".time-slot").forEach(x => {
+            x.classList.remove("booked");
+            x.removeAttribute("disabled");
+        });
+        data.forEach(function(id) {
+            const el = document.querySelector(".time-slot[data-id='" + id + "']");
+            if (el) {
+                el.classList.add("booked");
+                el.setAttribute("disabled", "true");
+                // Neu slot da dat nam trong selectedIds thi bo chon
+                selectedIds = selectedIds.filter(function(s) { return s !== id; });
+            }
+        });
+        renderSelected();
+    });
+}
+
+function book() {
+    if (!getDate())               { showToast("Vui lòng chọn ngày!", "warn"); return; }
+    if (selectedIds.length === 0) { showToast("Vui lòng chọn khung giờ!", "warn"); return; }
+
+    document.getElementById("bookBtn").classList.add("loading");
+
+    // Goi 1 request duy nhat voi tat ca slot → kiem tra + tinh tong tien, CHUA luu DB
+    $.post('/Booking/CheckAndPrepare', {
+        fieldId:     FIELD_ID,
+        timeSlotIds: selectedIds.join(","),
+        bookingDate: getDate()
+    }, function(res) {
+        document.getElementById("bookBtn").classList.remove("loading");
+        if (res.success) {
+            showToast("Đang chuyển đến trang thanh toán...", "success");
+            setTimeout(function() { window.location.href = res.redirectUrl; }, 600);
+        } else {
+            showToast(res.message || "Có lỗi xảy ra!", "error");
+            loadBooked();
+            selectedIds = [];
+            renderSelected();
+        }
+    }).fail(function() {
+        document.getElementById("bookBtn").classList.remove("loading");
+        showToast("Có lỗi xảy ra, vui lòng thử lại!", "error");
+    });
+}
+
+function showToast(msg, type) {
+    type = type || "success";
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = "toast toast--" + type + " toast--show";
+    setTimeout(function() { t.className = "toast"; }, 3200);
+}
+
+// Hien thi gia tren cac nut slot sau khi trang load xong
+window.addEventListener("DOMContentLoaded", function() {
+    renderSlotPrices();
+});
+</script>
+
+<style>
+    /* ── BASE ── */
+    .booking-wrapper {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 16px 60px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── HERO ── */
+    .field-hero {
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    .field-hero__image {
+        position: relative;
+        height: 280px;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .field-hero__gradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.72) 100%);
+    }
+
+    .field-hero__badge {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 100px;
+    }
+
+    .field-hero__info {
+        position: absolute;
+        bottom: 24px;
+        left: 24px;
+        right: 24px;
+    }
+
+    .field-hero__name {
+        color: #fff;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0 0 10px;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .field-hero__meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .meta-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 5px 12px;
+        border-radius: 100px;
+    }
+
+    .meta-pill--gold {
+        background: rgba(255,193,7,0.25);
+        border-color: rgba(255,193,7,0.4);
+        color: #ffd54f;
+        font-weight: 700;
+    }
+
+    /* ── BOOKING PANEL ── */
+    .booking-panel {
+        background: #fff;
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .section-block {
+        margin-bottom: 28px;
+    }
+
+        .section-block:last-child {
+            margin-bottom: 0;
+        }
+
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .section-label__icon {
+        width: 28px;
+        height: 28px;
+        background: #f0faf4;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1a7a4a;
+    }
+
+    /* ── DATE PICKER ── */
+    .date-picker-wrap {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .date-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 15px;
+        font-family: inherit;
+        color: #1e293b;
+        background: #f8fdf9;
+        box-sizing: border-box;
+        transition: border 0.2s;
+        outline: none;
+    }
+
+        .date-input:focus {
+            border-color: #1a7a4a;
+            box-shadow: 0 0 0 3px rgba(26,122,74,0.12);
+        }
+
+    /* ── SLOTS LEGEND ── */
+    .slots-legend {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 14px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .legend-dot--free {
+        background: #d4edda;
+        border: 1.5px solid #1a7a4a;
+    }
+
+    .legend-dot--selected {
+        background: #1a7a4a;
+    }
+
+    .legend-dot--booked {
+        background: #e0e0e0;
+    }
+
+    /* ── TIME GRID ── */
+    .time-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    /* ── TIME SLOT BUTTON ── */
+    .time-slot {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding: 12px 8px;
+        background: #f8fdf9;
+        border: 1.5px solid #d4edda;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #2d6a4f;
+        outline: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .time-slot:hover:not(.booked) {
+            border-color: #1a7a4a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(26,122,74,0.15);
+        }
+
+    .time-slot__time {
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .time-slot__sep {
+        opacity: 0.45;
+        font-weight: 400;
+        font-size: 11px;
+    }
+
+    /* FIX: hien gia tren nut slot */
+    .time-slot__price {
+        font-size: 11px;
+        font-weight: 600;
+        color: #059669;
+        margin-top: 2px;
+    }
+
+    .time-slot.active {
+        background: #1a7a4a;
+        border-color: #1a7a4a;
+        color: #fff;
+        box-shadow: 0 6px 20px rgba(26,122,74,0.3);
+        transform: translateY(-1px);
+    }
+
+        .time-slot.active .time-slot__price {
+            color: #a7f3d0;
+        }
+
+    .time-slot.booked {
+        background: #f5f5f5;
+        border-color: #e0e0e0;
+        color: #bbb;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+        .time-slot.booked::after {
+            content: 'Đã đặt';
+            position: absolute;
+            bottom: 4px;
+            right: 7px;
+            font-size: 9px;
+            font-weight: 600;
+            color: #ccc;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .time-slot.booked .time-slot__price {
+            display: none;
+        }
+
+    /* ── SUMMARY BAR ── */
+    .summary-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding: 16px 20px;
+        background: linear-gradient(135deg, #f0faf4 0%, #e8f5e9 100%);
+        border-radius: 12px;
+        border: 1.5px solid #c8e6c9;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .summary-bar__left {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+
+    .summary-bar__count {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a7a4a;
+        line-height: 1;
+    }
+
+    .summary-bar__label {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .summary-bar__right {
+        text-align: right;
+    }
+
+    .summary-bar__total-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #999;
+        margin-bottom: 2px;
+    }
+
+    .summary-bar__total {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    /* ── BOOK BUTTON ── */
+    .btn-book {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        margin-top: 20px;
+        padding: 16px;
+        background: linear-gradient(135deg, #1a7a4a 0%, #0f5c35 100%);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 8px 24px rgba(26,122,74,0.3);
+        outline: none;
+    }
+
+        .btn-book:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(26,122,74,0.4);
+        }
+
+        .btn-book:active {
+            transform: scale(0.98);
+        }
+
+        .btn-book.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+    /* ── TOAST ── */
+    .toast {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(24px);
+        padding: 14px 28px;
+        border-radius: 100px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        z-index: 9999;
+        white-space: nowrap;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+
+    .toast--show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .toast--success {
+        background: #1a7a4a;
+    }
+
+    .toast--warn {
+        background: #f59e0b;
+    }
+
+    .toast--error {
+        background: #dc2626;
+    }
+
+    /* ── ANIMATIONS ── */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 600px) {
+        .booking-panel {
+            padding: 20px 16px;
+        }
+
+        .field-hero__name {
+            font-size: 1.4rem;
+        }
+
+        .field-hero__image {
+            height: 220px;
+        }
+
+        .time-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .slots-legend {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .summary-bar {
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .summary-bar__right {
+            text-align: center;
+        }
+    }
+</style>

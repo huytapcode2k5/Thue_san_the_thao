@@ -1,0 +1,239 @@
+﻿@model Thue_san_the_thao.Models.Data.User
+@{
+    Layout = null;
+    var u = Model ?? new Thue_san_the_thao.Models.Data.User();
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="~/Images/logo.jpg" />
+    <title>Đăng ký</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f7f0;
+        }
+
+        .card {
+            width: 420px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px 28px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            border-top: 4px solid #2e7d32;
+        }
+
+        .card-header {
+            margin-bottom: 24px;
+        }
+
+            .card-header h2 {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1b5e20;
+            }
+
+            .card-header p {
+                font-size: 13px;
+                color: #888;
+                margin-top: 4px;
+            }
+
+        .alert {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            border-left: 4px solid #43a047;
+            color: #2e7d32;
+        }
+
+        .alert-error {
+            background: #fdecea;
+            border-left: 4px solid #e53935;
+            color: #c62828;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+            .field label {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 6px;
+            }
+
+            .field input {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1.5px solid #ddd;
+                border-radius: 8px;
+                font-family: 'Be Vietnam Pro', sans-serif;
+                font-size: 14px;
+                color: #222;
+                outline: none;
+                transition: border-color 0.2s;
+                background: #fafafa;
+            }
+
+                .field input:focus {
+                    border-color: #43a047;
+                    background: #fff;
+                }
+
+                .field input.input-error {
+                    border-color: #e53935;
+                    background: #fff8f8;
+                }
+
+        .field-error {
+            color: #e53935;
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 11px;
+            background: #2e7d32;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+            .btn-submit:hover {
+                background: #1b5e20;
+            }
+
+            .btn-submit:active {
+                background: #154a19;
+            }
+
+        .login-link {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #888;
+        }
+
+            .login-link a {
+                color: #2e7d32;
+                font-weight: 700;
+                text-decoration: none;
+            }
+
+                .login-link a:hover {
+                    text-decoration: underline;
+                }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-header">
+            <h2><img src="~/Images/logo.jpg" alt="H2D Sport" style="width:44px; height:44px; border-radius:50%; object-fit:cover;" /> Đăng ký tài khoản</h2>
+            <p>Tạo tài khoản để đặt sân thể thao</p>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">✅ @TempData["Success"]</div>
+        }
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-error">@ViewBag.Error</div>
+        }
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { id = "registerForm" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="field">
+                <label>Họ và tên</label>
+                <input name="FullName" value="@u.FullName"
+                       class="@(ViewData.ModelState["FullName"]?.Errors.Count > 0 ? "input-error" : "")" />
+                @if (ViewData.ModelState["FullName"]?.Errors.Count > 0)
+                {
+                    <div class="field-error">@ViewData.ModelState["FullName"].Errors[0].ErrorMessage</div>
+                }
+            </div>
+
+            <div class="field">
+                <label>Email</label>
+                <input name="Email" type="email" value="@u.Email"
+                       class="@(ViewData.ModelState["Email"]?.Errors.Count > 0 ? "input-error" : "")" />
+                @if (ViewData.ModelState["Email"]?.Errors.Count > 0)
+                {
+                    <div class="field-error">@ViewData.ModelState["Email"].Errors[0].ErrorMessage</div>
+                }
+            </div>
+
+            <div class="field">
+                <label>Số điện thoại</label>
+                <input name="Phone" type="tel" value="@u.Phone"
+                       class="@(ViewData.ModelState["Phone"]?.Errors.Count > 0 ? "input-error" : "")" />
+                @if (ViewData.ModelState["Phone"]?.Errors.Count > 0)
+                {
+                    <div class="field-error">@ViewData.ModelState["Phone"].Errors[0].ErrorMessage</div>
+                }
+            </div>
+
+            <div class="field">
+                <label>Mật khẩu</label>
+               
+                <input name="PasswordHash" type="password"
+                       class="@(ViewData.ModelState["PasswordHash"]?.Errors.Count > 0 ? "input-error" : "")" />
+                @if (ViewData.ModelState["PasswordHash"]?.Errors.Count > 0)
+                {
+                    <div class="field-error">@ViewData.ModelState["PasswordHash"].Errors[0].ErrorMessage</div>
+                }
+            </div>
+
+            <div class="field">
+                <label>Nhập lại mật khẩu</label>
+                <input name="ConfirmPassword" type="password"
+                       class="@(ViewData.ModelState["ConfirmPassword"]?.Errors.Count > 0 ? "input-error" : "")" />
+                @if (ViewData.ModelState["ConfirmPassword"]?.Errors.Count > 0)
+                {
+                    <div class="field-error">@ViewData.ModelState["ConfirmPassword"].Errors[0].ErrorMessage</div>
+                }
+            </div>
+
+            <button type="submit" class="btn-submit">Đăng ký</button>
+        }
+
+        <div class="login-link">
+            Đã có tài khoản?
+            <a href="@Url.Action("Login", "Account")">Đăng nhập</a>
+        </div>
+    </div>
+</body>
+</html>
