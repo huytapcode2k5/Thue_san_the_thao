@@ -1,6 +1,6 @@
-﻿@model IEnumerable<Thue_san_the_thao.Models.Data.Facility>
+﻿﻿@model IEnumerable<Thue_san_the_thao.Models.Data.Facility>
 @{
-    ViewBag.Title = "Quản lý danh mục";
+    ViewBag.Title = "Quản lý cơ sở";
     Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
 }
 
@@ -76,18 +76,39 @@
             background-color: #c0392b;
         }
 
+    /* status badge */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
     /* ===== CARD ===== */
     .card {
         background: #fff;
         border-radius: 10px;
         padding: 15px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow-x: auto;
     }
 
     /* ===== TABLE ===== */
     .data-table {
         width: 100%;
         border-collapse: collapse;
+        min-width: 700px;
     }
 
         .data-table thead {
@@ -104,6 +125,7 @@
         .data-table td {
             padding: 12px;
             border-top: 1px solid #eee;
+            vertical-align: middle;
         }
 
         /* hover row */
@@ -116,9 +138,17 @@
         color: #888;
     }
 
+    .desc-preview {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     /* ===== ACTION CELL ===== */
     .action-cell {
         text-align: center;
+        white-space: nowrap;
     }
 
         .action-cell .btn {
@@ -163,22 +193,37 @@
         <thead>
             <tr>
                 <th style="width: 60px">ID</th>
-                <th>Tên</th>
-                <th style="width: 160px; text-align:center">Thao tác</th>
+                <th>Tên cơ sở</th>
+                <th>Địa chỉ</th>
+                <th>Mô tả</th>
+                <th style="width: 100px">Trạng thái</th>
+                <th style="width: 140px; text-align:center">Thao tác</th>
             </tr>
         </thead>
         <tbody>
             @if (!Model.Any())
             {
                 <tr>
-                    <td colspan="4" class="empty-state">Chưa có cơ sở nào.</td>
+                    <td colspan="6" class="empty-state">Chưa có cơ sở nào.</td>
                 </tr>
             }
             @foreach (var item in Model)
             {
                 <tr>
                     <td class="text-muted">@item.FacilityID</td>
-                    <td>@item.FacilityName</td>
+                    <td><strong>@item.FacilityName</strong></td>
+                    <td class="desc-preview">@(item.Address ?? "Chưa có địa chỉ")</td>
+                    <td class="desc-preview">@(item.Description ?? "Chưa có mô tả")</td>
+                    <td>
+                        @if (item.Status == true)
+                        {
+                            <span class="status-badge status-active">● Đang hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-inactive">● Tạm dừng</span>
+                        }
+                    </td>
                     <td class="action-cell">
                         <a href="@Url.Action("Edit", "Facility", new { id = item.FacilityID })" class="btn btn-sm btn-outline">Sửa</a>
                         <a href="@Url.Action("Delete", "Facility", new { id = item.FacilityID })"
@@ -190,7 +235,3 @@
         </tbody>
     </table>
 </div>
-
-
-
-

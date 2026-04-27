@@ -10,8 +10,8 @@ namespace Thue_san_the_thao.Areas.Admin.Controllers
     [Authorize]
     public class FacilityController : Controller
     {
-        // GET: Admin/Facillity
         Quan_ly_thue_san_the_thao_webncEntities db = new Quan_ly_thue_san_the_thao_webncEntities();
+
         public ActionResult Index()
         {
             return View(db.Facilities.ToList());
@@ -29,6 +29,7 @@ namespace Thue_san_the_thao.Areas.Admin.Controllers
             {
                 db.Facilities.Add(c);
                 db.SaveChanges();
+                TempData["Success"] = "Thêm cơ sở thành công!";
                 return RedirectToAction("Index");
             }
             return View(c);
@@ -37,17 +38,21 @@ namespace Thue_san_the_thao.Areas.Admin.Controllers
         public ActionResult Edit(int id)
         {
             var c = db.Facilities.Find(id);
+            if (c == null)
+            {
+                return HttpNotFound();
+            }
             return View(c);
         }
 
         [HttpPost]
-        public ActionResult Edit(Category c)
+        public ActionResult Edit(Facility c)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(c).State = System.Data.Entity.EntityState.Modified;
-                //db.Entry(c).State = EntityState.Modified;
                 db.SaveChanges();
+                TempData["Success"] = "Cập nhật cơ sở thành công!";
                 return RedirectToAction("Index");
             }
             return View(c);
@@ -56,8 +61,12 @@ namespace Thue_san_the_thao.Areas.Admin.Controllers
         public ActionResult Delete(int id)
         {
             var c = db.Facilities.Find(id);
-            db.Facilities.Remove(c);
-            db.SaveChanges();
+            if (c != null)
+            {
+                db.Facilities.Remove(c);
+                db.SaveChanges();
+                TempData["Success"] = "Xóa cơ sở thành công!";
+            }
             return RedirectToAction("Index");
         }
     }

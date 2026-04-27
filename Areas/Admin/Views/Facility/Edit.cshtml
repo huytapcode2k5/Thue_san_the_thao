@@ -1,5 +1,5 @@
-﻿@{
-    ViewBag.Title = "Sửa danh mục";
+﻿﻿@{
+    ViewBag.Title = "Sửa cơ sở";
     Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
 }
 
@@ -79,7 +79,7 @@
         padding: 30px;
         border-radius: 16px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        max-width: 600px;
+        max-width: 700px;
         border: 1px solid rgba(255,255,255,0.4);
     }
 
@@ -112,6 +112,33 @@
             background: white;
             box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
             outline: none;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    /* checkbox / radio group */
+    .radio-group {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        padding: 8px 0;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #6366f1;
         }
 
     /* validation */
@@ -173,9 +200,36 @@
         @Html.HiddenFor(m => m.FacilityID)
 
         <div class="form-group">
-            @Html.LabelFor(m => m.FacilityName, "Tên ", new { @class = "form-label" })
-            @Html.TextBoxFor(m => m.FacilityName, new { @class = "form-control", placeholder = "Nhập tên..." })
+            @Html.LabelFor(m => m.FacilityName, "Tên cơ sở", new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.FacilityName, new { @class = "form-control", placeholder = "Nhập tên cơ sở..." })
             @Html.ValidationMessageFor(m => m.FacilityName, "", new { @class = "validation-msg" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Address, "Địa chỉ", new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.Address, new { @class = "form-control", placeholder = "Nhập địa chỉ cơ sở..." })
+            @Html.ValidationMessageFor(m => m.Address, "", new { @class = "validation-msg" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Description, "Mô tả", new { @class = "form-label" })
+            @Html.TextAreaFor(m => m.Description, new { @class = "form-control", placeholder = "Nhập mô tả chi tiết về cơ sở..." })
+            @Html.ValidationMessageFor(m => m.Description, "", new { @class = "validation-msg" })
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Trạng thái</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    @Html.RadioButtonFor(m => m.Status, true)
+                    <span>● Đang hoạt động</span>
+                </label>
+                <label class="radio-option">
+                    @Html.RadioButtonFor(m => m.Status, false)
+                    <span>○ Tạm dừng</span>
+                </label>
+            </div>
+            @Html.ValidationMessageFor(m => m.Status, "", new { @class = "validation-msg" })
         </div>
 
         <div class="form-actions">
@@ -184,6 +238,3 @@
         </div>
     }
 </div>
-
-
-

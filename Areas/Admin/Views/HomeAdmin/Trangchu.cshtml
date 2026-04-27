@@ -1,8 +1,820 @@
-﻿
+﻿@using Thue_san_the_thao.Areas.Admin.Data
+@using Thue_san_the_thao.Models.Data
+@using System.Collections.Generic
+
 @{
-    ViewBag.Title = "Trangchu";
+    ViewBag.Title = "Dashboard";
     Layout = "~/Areas/Admin/Views/Shared/_layoutAdmin.cshtml";
+
+    decimal revTotal = ViewBag.RevenueTotalMonth is decimal r ? r : 0m;
+    decimal revLastMonth = ViewBag.RevenueTotalLastMonth is decimal rl ? rl : 0m;
+    decimal revBooking = ViewBag.RevenueBookingMonth is decimal rb ? rb : 0m;
+    decimal revOrder = ViewBag.RevenueOrderMonth is decimal ro ? ro : 0m;
+
+    double growthPct = revLastMonth > 0
+        ? Math.Round((double)((revTotal - revLastMonth) / revLastMonth * 100), 1)
+        : 0;
+    bool growthUp = growthPct >= 0;
+
+    var topFields = ViewBag.TopFields as List<TopFieldVM> ?? new List<TopFieldVM>();
+    var topProducts = ViewBag.TopProducts as List<TopProductVM> ?? new List<TopProductVM>();
+    var recentBookings = ViewBag.RecentBookings as List<Booking> ?? new List<Booking>();
+    var recentOrders = ViewBag.RecentOrders as List<Order> ?? new List<Order>();
+
+    string today = DateTime.Today.ToString("dd/MM/yyyy");
+    string thisMonth = DateTime.Today.ToString("MM/yyyy");
 }
 
-<h2>Trangchu cua admin nè</h2>
+<style>
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
 
+    .dash-wrap {
+        padding: 20px 24px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .dash-row {
+        margin-bottom: 16px;
+    }
+
+    /* ══ GRID — dùng fr thuần, card tự co theo ══ */
+    .dash-grid {
+        display: grid;
+        gap: 16px;
+        width: 100%;
+    }
+
+        .dash-grid.col-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .dash-grid.col-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .dash-grid.col-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+    /* ── CARD BASE ── */
+    .card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 18px 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        border: 1px solid #f0f0f0;
+        overflow: hidden; /* quan trong: tranh card bi tran */
+        min-width: 0; /* cho phep grid co card lai */
+    }
+
+    .card-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* ── STAT CARDS ── */
+    .stat-card {
+        border-radius: 16px;
+        padding: 18px 20px;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        min-width: 0; /* cho phep grid co card */
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            pointer-events: none;
+        }
+
+        .stat-card .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card .stat-val {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 13px;
+            opacity: .9;
+            font-weight: 600;
+        }
+
+        .stat-card .stat-sub {
+            font-size: 11px;
+            opacity: .7;
+            margin-top: 8px;
+        }
+
+    .sc-blue {
+        background: linear-gradient(135deg,#4f46e5,#6366f1);
+    }
+
+    .sc-green {
+        background: linear-gradient(135deg,#059669,#10b981);
+    }
+
+    .sc-orange {
+        background: linear-gradient(135deg,#d97706,#f59e0b);
+    }
+
+    .sc-pink {
+        background: linear-gradient(135deg,#db2777,#ec4899);
+    }
+
+    /* ── REVENUE CARD ── */
+    .rev-card {
+        background: linear-gradient(135deg,#1e1b4b,#312e81);
+        border-radius: 16px;
+        padding: 22px;
+        color: #fff;
+        box-shadow: 0 4px 24px rgba(49,46,129,.3);
+        overflow: hidden;
+        min-width: 0;
+    }
+
+    .rev-main {
+        font-size: 30px;
+        font-weight: 800;
+        margin: 6px 0 4px;
+    }
+
+    .rev-label {
+        font-size: 13px;
+        opacity: .7;
+    }
+
+    .rev-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 8px;
+    }
+
+        .rev-badge.up {
+            background: rgba(16,185,129,.2);
+            color: #6ee7b7;
+        }
+
+        .rev-badge.down {
+            background: rgba(239,68,68,.2);
+            color: #fca5a5;
+        }
+
+    .rev-split {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255,255,255,.1);
+    }
+
+    .rev-split-item {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .rev-split-val {
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .rev-split-label {
+        font-size: 11px;
+        opacity: .6;
+        margin-top: 2px;
+    }
+
+    /* ── MINI STATUS ── */
+    .mini-status {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .mini-card {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 12px 8px;
+        text-align: center;
+        border: 1px solid #f1f5f9;
+        min-width: 0;
+    }
+
+        .mini-card .mini-num {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .mini-card .mini-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+
+        .mini-card.wait-pay .mini-num {
+            color: #9d174d;
+        }
+
+        .mini-card.wait-conf .mini-num {
+            color: #d97706;
+        }
+
+        .mini-card.confirmed .mini-num {
+            color: #2563eb;
+        }
+
+        .mini-card.today .mini-num {
+            color: #059669;
+        }
+
+    /* ── TABLE ── */
+    .dash-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+        .dash-table th {
+            padding: 9px 10px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            border-bottom: 1px solid #f1f5f9;
+            background: #f8fafc;
+        }
+
+        .dash-table td {
+            padding: 10px;
+            font-size: 12px;
+            color: #334155;
+            border-bottom: 1px solid #f8fafc;
+            vertical-align: middle;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dash-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .dash-table tbody tr:hover td {
+            background: #fafbff;
+        }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .b-wait-pay {
+        background: #fce7f3;
+        color: #9d174d;
+    }
+
+    .b-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .b-confirmed {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .b-done {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .b-cancelled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .b-default {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    /* ── TOP LIST ── */
+    .top-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px solid #f8fafc;
+    }
+
+        .top-item:last-child {
+            border-bottom: none;
+        }
+
+    .top-rank {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .rank-1 {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .rank-2 {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .rank-3 {
+        background: #fce7f3;
+        color: #9d174d;
+    }
+
+    .rank-n {
+        background: #f8fafc;
+        color: #94a3b8;
+    }
+
+    .top-name {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1e293b;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .top-rev {
+        font-size: 12px;
+        font-weight: 700;
+        color: #059669;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* ── PROGRESS ── */
+    .prog-wrap {
+        margin-top: 4px;
+    }
+
+    .prog-bar {
+        height: 4px;
+        background: #f1f5f9;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 3px;
+    }
+
+    .prog-fill {
+        height: 100%;
+        border-radius: 10px;
+        background: linear-gradient(90deg,#6366f1,#8b5cf6);
+    }
+
+    /* ── CHART ── */
+    #revenueChart {
+        width: 100% !important;
+        height: 220px !important;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-hd {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        gap: 8px;
+    }
+
+        .section-hd h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            min-width: 0;
+        }
+
+    .btn-link {
+        font-size: 12px;
+        color: #6366f1;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 1100px) {
+        .dash-grid.col-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .dash-grid.col-4,
+        .dash-grid.col-3,
+        .dash-grid.col-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .dash-wrap {
+            padding: 12px;
+        }
+    }
+</style>
+
+<div class="dash-wrap" style="width:100%;max-width:100%;overflow-x:hidden;">
+
+    <!-- ══ ROW 1: STAT CARDS ══ -->
+    <div class="dash-grid col-4 dash-row">
+        <div class="stat-card sc-blue">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-val">@ViewBag.TotalUsers</div>
+            <div class="stat-label">Người dùng</div>
+            <div class="stat-sub"><i class="fas fa-building"></i> @ViewBag.TotalFacilities cơ sở · @ViewBag.TotalFields sân</div>
+        </div>
+        <div class="stat-card sc-green">
+            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-val">@ViewBag.BookingThisMonth</div>
+            <div class="stat-label">Đặt sân tháng @thisMonth</div>
+            <div class="stat-sub">Hôm nay: @ViewBag.BookingToday lượt</div>
+        </div>
+        <div class="stat-card sc-orange">
+            <div class="stat-icon"><i class="fas fa-box"></i></div>
+            <div class="stat-val">@ViewBag.OrderThisMonth</div>
+            <div class="stat-label">Đơn hàng tháng @thisMonth</div>
+            <div class="stat-sub">Hôm nay: @ViewBag.OrderToday đơn</div>
+        </div>
+        <div class="stat-card sc-pink">
+            <div class="stat-icon"><i class="fas fa-store"></i></div>
+            <div class="stat-val">@ViewBag.TotalProducts</div>
+            <div class="stat-label">Sản phẩm đang bán</div>
+            <div class="stat-sub">Chờ xác nhận đơn: @ViewBag.OrderWaitConf</div>
+        </div>
+    </div>
+
+    <!-- ══ ROW 2: DOANH THU + TRẠNG THÁI ══ -->
+    <div class="dash-grid col-3 dash-row">
+
+        <!-- Doanh thu tháng -->
+        <div class="rev-card" style="grid-column: span 1">
+            <div class="rev-label">Doanh thu tháng @thisMonth</div>
+            <div class="rev-main">@String.Format("{0:N0}đ", revTotal)</div>
+            <span class="rev-badge @(growthUp ? "up" : "down")">
+                <i class="fas fa-arrow-@(growthUp ? "up" : "down")"></i>
+                @Math.Abs(growthPct)% so tháng trước
+            </span>
+            <div class="rev-split">
+                <div class="rev-split-item">
+                    <div class="rev-split-val">@String.Format("{0:N0}đ", revBooking)</div>
+                    <div class="rev-split-label"><i class="fas fa-calendar"></i> Đặt sân</div>
+                </div>
+                <div class="rev-split-item">
+                    <div class="rev-split-val">@String.Format("{0:N0}đ", revOrder)</div>
+                    <div class="rev-split-label"><i class="fas fa-shopping-bag"></i> Sản phẩm</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trạng thái đặt sân -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-calendar" style="color:#6366f1"></i> Trạng thái đặt sân</div>
+            <div class="mini-status">
+                <div class="mini-card wait-pay">
+                    <div class="mini-num">@ViewBag.BookingWaitPay</div>
+                    <div class="mini-label">Chờ thanh toán</div>
+                </div>
+                <div class="mini-card wait-conf">
+                    <div class="mini-num">@ViewBag.BookingWaitConf</div>
+                    <div class="mini-label">Chờ xác nhận</div>
+                </div>
+                <div class="mini-card confirmed">
+                    <div class="mini-num">@ViewBag.BookingConfirmed</div>
+                    <div class="mini-label">Đã xác nhận</div>
+                </div>
+                <div class="mini-card today">
+                    <div class="mini-num">@ViewBag.BookingToday</div>
+                    <div class="mini-label">Hôm nay</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trạng thái đơn hàng -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-box" style="color:#f59e0b"></i> Trạng thái đơn hàng</div>
+            <div class="mini-status">
+                <div class="mini-card wait-conf">
+                    <div class="mini-num">@ViewBag.OrderWaitConf</div>
+                    <div class="mini-label">Chờ xác nhận</div>
+                </div>
+                <div class="mini-card confirmed">
+                    <div class="mini-num">@ViewBag.OrderConfirmed</div>
+                    <div class="mini-label">Đã xác nhận</div>
+                </div>
+                <div class="mini-card today">
+                    <div class="mini-num">@ViewBag.OrderToday</div>
+                    <div class="mini-label">Hôm nay</div>
+                </div>
+                <div class="mini-card wait-pay">
+                    <div class="mini-num">@ViewBag.TotalProducts</div>
+                    <div class="mini-label">SP đang bán</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ ROW 3: BIỂU ĐỒ DOANH THU ══ -->
+    <div class="card dash-row">
+        <div class="section-hd">
+            <h3><i class="fas fa-chart-bar" style="color:#6366f1"></i> Doanh thu 6 tháng gần nhất</h3>
+        </div>
+        <canvas id="revenueChart"></canvas>
+    </div>
+
+    <!-- ══ ROW 4: TOP SÂN + TOP SẢN PHẨM ══ -->
+    <div class="dash-grid col-2 dash-row">
+
+        <!-- Top sân -->
+        <div class="card">
+            <div class="section-hd">
+                <h3><i class="fas fa-futbol" style="color:#059669"></i> Top sân được đặt nhiều nhất</h3>
+                <a href="/Admin/BookingSan" class="btn-link">Xem tất cả →</a>
+            </div>
+            @if (!topFields.Any())
+            {
+                <p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0">Chưa có dữ liệu</p>
+            }
+            else
+            {
+                int maxBook = topFields.Max(f => f.TotalBookings);
+                for (int i = 0; i < topFields.Count; i++)
+                {
+                    var f = topFields[i];
+                    int pct = maxBook > 0 ? (int)((double)f.TotalBookings / maxBook * 100) : 0;
+                    string rankCls = i == 0 ? "rank-1" : i == 1 ? "rank-2" : i == 2 ? "rank-3" : "rank-n";
+                    <div class="top-item">
+                        <div class="top-rank @rankCls">@(i + 1)</div>
+                        <div style="flex:1">
+                            <div class="top-name">@f.FieldName</div>
+                            <div class="prog-wrap">
+                                <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8">
+                                    <span>@f.TotalBookings lượt đặt</span>
+                                    <span class="top-rev">@String.Format("{0:N0}đ", f.TotalRevenue)</span>
+                                </div>
+                                <div class="prog-bar"><div class="prog-fill" style="width:@pct%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Top sản phẩm -->
+        <div class="card">
+            <div class="section-hd">
+                <h3><i class="fas fa-trophy" style="color:#d97706"></i> Top sản phẩm bán chạy</h3>
+                <a href="/Admin/Order" class="btn-link">Xem tất cả →</a>
+            </div>
+            @if (!topProducts.Any())
+            {
+                <p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0">Chưa có dữ liệu</p>
+            }
+            else
+            {
+                int maxQty = topProducts.Max(p => p.TotalQuantity);
+                for (int i = 0; i < topProducts.Count; i++)
+                {
+                    var p = topProducts[i];
+                    int pct = maxQty > 0 ? (int)((double)p.TotalQuantity / maxQty * 100) : 0;
+                    string rankCls = i == 0 ? "rank-1" : i == 1 ? "rank-2" : i == 2 ? "rank-3" : "rank-n";
+                    <div class="top-item">
+                        <div class="top-rank @rankCls">@(i + 1)</div>
+                        <div style="flex:1">
+                            <div class="top-name">@p.ProductName</div>
+                            <div class="prog-wrap">
+                                <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8">
+                                    <span>@p.TotalQuantity sản phẩm</span>
+                                    <span class="top-rev">@String.Format("{0:N0}đ", p.TotalRevenue)</span>
+                                </div>
+                                <div class="prog-bar">
+                                    <div class="prog-fill" style="width:@pct%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- ══ ROW 5: HOẠT ĐỘNG GẦN ĐÂY ══ -->
+    <div class="dash-grid col-2">
+
+        <!-- Đặt sân gần nhất -->
+        <div class="card">
+            <div class="section-hd">
+                <h3><i class="fas fa-calendar-check" style="color:#6366f1"></i> Đặt sân gần nhất</h3>
+                <a href="/Admin/BookingSan" class="btn-link">Xem tất cả →</a>
+            </div>
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Khách</th>
+                        <th>Sân</th>
+                        <th>Ngày</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!recentBookings.Any())
+                    {
+                        <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px">Chưa có dữ liệu</td></tr>
+                    }
+                    @foreach (var b in recentBookings)
+                    {
+                        string bCls = b.Status == "Chờ thanh toán" ? "b-wait-pay"
+                                    : b.Status == "Chờ xác nhận" ? "b-pending"
+                                    : b.Status == "Đã xác nhận" ? "b-confirmed"
+                                    : b.Status == "Hoàn thành" ? "b-done"
+                                    : b.Status == "Đã hủy" ? "b-cancelled"
+                                    : "b-default";
+                        <tr>
+                            <td style="font-weight:600">@(b.User?.FullName ?? "—")</td>
+                            <td style="color:#64748b">@(b.Field?.FieldName ?? "—")</td>
+                            <td style="color:#64748b;font-size:12px">
+                                @(b.BookingDate.HasValue ? b.BookingDate.Value.ToString("dd/MM") : "—")
+                            </td>
+                            <td><span class="badge @bCls">@(b.Status ?? "—")</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Đơn hàng gần nhất -->
+        <div class="card">
+            <div class="section-hd">
+                <h3><i class="fas fa-shopping-bag" style="color:#f59e0b"></i> Đơn hàng gần nhất</h3>
+                <a href="/Admin/Order" class="btn-link">Xem tất cả →</a>
+            </div>
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Khách</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!recentOrders.Any())
+                    {
+                        <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px">Chưa có dữ liệu</td></tr>
+                    }
+                    @foreach (var o in recentOrders)
+                    {
+                        string oCls = o.Status == "Chờ xác nhận" ? "b-pending"
+                                    : o.Status == "Đã xác nhận" ? "b-confirmed"
+                                    : o.Status == "Hoàn thành" ? "b-done"
+                                    : o.Status == "Đã hủy" ? "b-cancelled"
+                                    : "b-default";
+                        <tr>
+                            <td style="color:#94a3b8;font-size:12px">#@o.OrderID</td>
+                            <td style="font-weight:600">@(o.User?.FullName ?? "—")</td>
+                            <td style="font-weight:700;color:#059669">
+                                @String.Format("{0:N0}đ", o.TotalAmount ?? 0)
+                            </td>
+                            <td><span class="badge @oCls">@(o.Status ?? "—")</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div><!-- /.dash-wrap -->
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+    const raw = @Html.Raw(ViewBag.ChartDataJson ?? "[]");
+
+    const labels  = raw.map(d => d.month);
+    const booking = raw.map(d => d.booking);
+    const order   = raw.map(d => d.order);
+    const total   = raw.map(d => d.total);
+
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Đặt sân',
+                    data: booking,
+                    backgroundColor: 'rgba(99,102,241,0.7)',
+                    borderRadius: 6
+                },
+                {
+                    label: 'Sản phẩm',
+                    data: order,
+                    backgroundColor: 'rgba(245,158,11,0.7)',
+                    borderRadius: 6
+                },
+                {
+                    label: 'Tổng',
+                    data: total,
+                    type: 'line',
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16,185,129,0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#10b981',
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.dataset.label + ': ' +
+                            ctx.parsed.y.toLocaleString('vi-VN') + 'đ'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: val => (val / 1000000).toFixed(1) + 'M'
+                    }
+                }
+            }
+        }
+    });
+    </script>
+}

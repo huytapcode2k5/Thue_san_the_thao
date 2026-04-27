@@ -40,9 +40,12 @@ namespace Thue_san_the_thao.Areas.Admin.Controllers
             ViewBag.Search = search;
 
             // Dictionary: TimeSlotID -> Price1 để tra giá nhanh trong view
+            // GroupBy de tranh loi duplicate key neu co nhieu ban ghi cung TimeSlotID
             var priceDict = db.Prices
                               .Where(p => p.TimeSlotID != null)
-                              .ToDictionary(p => p.TimeSlotID.Value, p => p.Price1);
+                              .ToList()
+                              .GroupBy(p => p.TimeSlotID.Value)
+                              .ToDictionary(g => g.Key, g => g.First().Price1);
 
             ViewBag.PriceDict = priceDict;
 
@@ -65,12 +68,10 @@ namespace Thue_san_the_thao.Areas.Admin.Controllers
             if (booking == null)
                 return HttpNotFound();
 
-            // Lấy mức giá theo đúng FieldID + TimeSlotID của booking
+            // Lấy mức giá tương ứng với TimeSlotID của booking này
             Price price = null;
-            if (booking.TimeSlotID.HasValue && booking.FieldID.HasValue)
-                price = db.Prices.FirstOrDefault(p =>
-                    p.FieldID == booking.FieldID &&
-                    p.TimeSlotID == booking.TimeSlotID);
+            if (booking.TimeSlotID.HasValue)
+                price = db.Prices.FirstOrDefault(p => p.TimeSlotID == booking.TimeSlotID);
 
             ViewBag.Price = price;
 
@@ -84,37 +85,11 @@ namespace Thue_san_the_thao.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateStatus(int id, string status)
         {
-            var booking = db.Bookings.Include("Orders").FirstOrDefault(b => b.BookingID == id);
+            var booking = db.Bookings.Find(id);
             if (booking == null)
                 return HttpNotFound();
 
             booking.Status = status;
-
-            // Khi chuyển sang "Hoàn thành": tạo Order ghi nhận doanh thu nếu chưa có
-            if (status == "Hoàn thành" && !booking.Orders.Any())
-            {
-                // Tra giá theo FieldID + TimeSlotID
-                decimal price = 0;
-                if (booking.FieldID.HasValue && booking.TimeSlotID.HasValue)
-                {
-                    var priceRecord = db.Prices.FirstOrDefault(p =>
-                        p.FieldID == booking.FieldID &&
-                        p.TimeSlotID == booking.TimeSlotID);
-                    if (priceRecord != null)
-                        price = priceRecord.Price1 ?? 0;
-                }
-
-                var order = new Order
-                {
-                    UserID = booking.UserID,
-                    BookingID = booking.BookingID,
-                    OrderDate = DateTime.Now,
-                    TotalAmount = price,
-                    Status = "Hoàn thành"
-                };
-                db.Orders.Add(order);
-            }
-
             db.SaveChanges();
 
             TempData["Success"] = "Cập nhật trạng thái đơn hàng #" + id + " thành công!";
